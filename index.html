@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAISON</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        apple: {
+                            bg: '#161617',
+                            card: '#1c1c1e',
+                            text: '#f5f5f7',
+                            subtext: '#86868b',
+                            blue: '#0066cc',
+                            gray: '#2c2c2e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .backdrop-blur-apple {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .bento-card {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bento-card:hover {
+            transform: scale(1.015);
+        }
+    </style>
+</head>
+<body data-inventory-section="home" class="bg-white dark:bg-apple-bg text-gray-900 dark:text-apple-text font-sans antialiased selection:bg-apple-blue selection:text-white transition-colors duration-300">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-apple-bg/80 backdrop-blur-apple border-b border-gray-200 dark:border-gray-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between text-sm">
+            <div class="flex items-center space-x-8">
+                <a href="#" class="font-bold text-lg tracking-tight hover:opacity-80 transition">MAISON</a>
+                <nav class="hidden md:flex space-x-6 text-xs text-gray-600 dark:text-apple-subtext font-medium">
+                    <a href="store.html" class="hover:text-black dark:hover:text-white transition">Cửa Hàng</a>
+                    <a href="aokhoac.html" class="hover:text-black dark:hover:text-white transition">Áo Khoác</a>
+                    <a href="#iphone" class="hover:text-black dark:hover:text-white transition">Bộ Sưu Tập</a>
+                    <a href="#support" class="hover:text-black dark:hover:text-white transition">Phụ Kiện</a>
+                </nav>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <!-- Toggle Theme -->
+                <button id="theme-toggle" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-apple-gray transition" title="Đổi giao diện">
+                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+                </button>
+
+                <!-- Search Icon -->
+                <button onclick="toggleSearch()" class="p-1 hover:text-apple-blue transition">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Account Button -->
+                <button id="account-button" onclick="toggleLogin()" class="flex items-center gap-1 p-1 hover:text-apple-blue transition" aria-label="Đăng nhập">
+                    <i data-lucide="user-round" class="w-4 h-4"></i>
+                    <span id="account-label" class="hidden sm:inline text-xs">Đăng nhập</span>
+                </button>
+
+                <!-- Cart Icon -->
+                <button onclick="toggleCart()" class="p-1 hover:text-apple-blue transition relative">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-2 bg-apple-blue text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Overlay Modal -->
+    <div id="search-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-start justify-center pt-20">
+        <div class="bg-white dark:bg-apple-card w-full max-w-2xl rounded-2xl p-6 shadow-2xl mx-4 border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center border-b border-gray-200 dark:border-gray-700 pb-3">
+                <i data-lucide="search" class="w-5 h-5 text-apple-subtext mr-3"></i>
+                <input type="text" id="search-input" placeholder="Tìm kiếm sản phẩm, bộ sưu tập..." class="bg-transparent w-full focus:outline-none text-lg text-gray-900 dark:text-white">
+                <button onclick="toggleSearch()" class="text-sm text-apple-subtext hover:text-white">Hủy</button>
+            </div>
+            <div class="mt-4 text-xs text-apple-subtext">
+                <p class="font-semibold mb-2">Gợi ý tìm kiếm:</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-gray-100 dark:bg-apple-gray rounded-full cursor-pointer hover:bg-apple-blue hover:text-white transition">Áo khoác Bomber Pro</span>
+                    <span class="px-3 py-1 bg-gray-100 dark:bg-apple-gray rounded-full cursor-pointer hover:bg-apple-blue hover:text-white transition">Minimalist Hoodie</span>
+                    <span class="px-3 py-1 bg-gray-100 dark:bg-apple-gray rounded-full cursor-pointer hover:bg-apple-blue hover:text-white transition">Quần Tailored Pants</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" onclick="if (event.target === this) closeLogin()">
+        <div class="bg-white dark:bg-apple-card w-full max-w-md rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-gray-800">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 class="text-2xl font-semibold">Đăng nhập</h2>
+                    <p class="text-sm text-apple-subtext mt-1">Chào mừng bạn trở lại MAISON.</p>
+                </div>
+                <button type="button" onclick="closeLogin()" class="p-1 text-apple-subtext hover:text-white" aria-label="Đóng">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <label class="block text-sm font-medium">
+                    Email
+                    <input id="login-email" type="email" autocomplete="email" required placeholder="ban@example.com" class="mt-1 w-full bg-gray-100 dark:bg-apple-gray px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-apple-blue">
+                </label>
+                <label class="block text-sm font-medium">
+                    Mật khẩu
+                    <input id="login-password" type="password" autocomplete="current-password" required minlength="6" placeholder="Nhập mật khẩu" class="mt-1 w-full bg-gray-100 dark:bg-apple-gray px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-apple-blue">
+                </label>
+                <p class="text-xs text-apple-subtext">Phiên đăng nhập được lưu trên thiết bị này. Mật khẩu không được lưu; tài khoản chưa xác thực qua máy chủ.</p>
+                <button type="submit" class="w-full bg-apple-blue text-white py-2.5 rounded-lg font-medium hover:bg-blue-600 transition">Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main id="user-view" class="space-y-16 pb-20">
+
+        <!-- Hero Section -->
+        <section class="relative pt-12 pb-20 text-center flex flex-col items-center justify-center overflow-hidden">
+            <span class="text-xs font-semibold tracking-widest text-orange-500 uppercase mb-2">Mới Ra Mắt</span>
+            <h1 class="text-5xl md:text-7xl font-semibold tracking-tight max-w-4xl leading-tight">
+                Thiết Kế Tối Giản.<br><span class="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">Chất Liệu Cao Cấp.</span>
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-apple-subtext max-w-2xl font-normal">
+                Bộ sưu tập Thu Đông 2026. Định nghĩa lại phong cách thời trang đương đại với tiêu chuẩn hoàn thiện vượt trội.
+            </p>
+            <div class="mt-6 flex space-x-4">
+                <a href="#products" class="bg-apple-blue text-white px-5 py-2 rounded-full font-medium hover:bg-blue-600 transition text-sm flex items-center">
+                    Khám phá ngay <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                </a>
+                <button onclick="openConfigurator(1)" class="border border-gray-400 dark:border-gray-600 px-5 py-2 rounded-full font-medium hover:border-white transition text-sm">
+                    Tùy chỉnh Áo Pro
+                </button>
+            </div>
+
+            <!-- Hero Image Banner -->
+            <div class="mt-10 w-full max-w-5xl px-4">
+                <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80" alt="Hero Banner" class="rounded-3xl shadow-2xl object-cover w-full h-[450px] border border-gray-200 dark:border-gray-800">
+            </div>
+        </section>
+
+        <!-- Bento Grid Feature Section -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-semibold tracking-tight mb-8">Dòng Sản Phẩm Nổi Bật.</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Bento Item 1 (Large) -->
+                <div data-stock-id="1" class="md:col-span-2 bg-gray-100 dark:bg-apple-card rounded-3xl p-8 flex flex-col justify-between overflow-hidden relative min-h-[380px] border border-gray-200 dark:border-gray-800 bento-card">
+                    <div class="z-10">
+                        <span class="text-xs font-semibold text-apple-subtext uppercase">Đột Phá Công Nghệ Vải</span>
+                        <h3 class="text-3xl font-semibold mt-1">Áo Khoác UltraLight Pro</h3>
+                        <p class="text-apple-subtext mt-2 max-w-sm text-sm">Chống nước tuyệt đối, siêu nhẹ chỉ 250g. Thiết kế tối giản dành cho đô thị.</p>
+                    </div>
+                    <div class="mt-6 z-10">
+                        <button onclick="openConfigurator(1)" class="bg-white dark:bg-apple-gray text-black dark:text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-apple-blue hover:text-white transition">Cấu hình & Mua</button>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80" class="absolute right-0 bottom-0 w-1/2 h-full object-cover rounded-r-3xl opacity-80" alt="UltraLight Jacket">
+                </div>
+
+                <!-- Bento Item 2 -->
+                <div data-stock-id="2" class="bg-gray-100 dark:bg-apple-card rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden min-h-[380px] border border-gray-200 dark:border-gray-800 bento-card">
+                    <div>
+                        <span class="text-xs font-semibold text-apple-subtext uppercase">Bền Vững</span>
+                        <h3 class="text-2xl font-semibold mt-1">Organic Cotton Hoodie</h3>
+                        <p class="text-apple-subtext mt-2 text-sm">100% Bông hữu cơ tự nhiên.</p>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80" class="w-full h-48 object-cover rounded-2xl mt-4" alt="Hoodie">
+                    <div class="mt-4 flex justify-between items-center">
+                        <span class="font-semibold text-sm">1.890.000₫</span>
+                        <button onclick="addToCart('Organic Cotton Hoodie', 1890000, 'Đen', 2)" class="p-2 bg-apple-blue text-white rounded-full"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Product List Section -->
+        <section id="products" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-3xl font-semibold tracking-tight">Tất Cả Sản Phẩm.</h2>
+                    <p class="text-apple-subtext text-sm mt-1">Chọn mẫu phù hợp với phong cách của bạn.</p>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Injected via JavaScript -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Interactive Configurator Modal (Apple-style) -->
+    <div id="config-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-apple-card rounded-3xl max-w-3xl w-full p-6 md:p-8 relative overflow-hidden border border-gray-700 shadow-2xl">
+            <button onclick="closeConfigurator()" class="absolute top-4 right-4 p-2 text-apple-subtext hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <!-- Preview Image -->
+                <div class="bg-gray-100 dark:bg-apple-gray rounded-2xl p-4 flex items-center justify-center">
+                    <img id="config-img" src="" alt="Config Preview" class="h-64 object-cover rounded-xl">
+                </div>
+
+                <!-- Options -->
+                <div>
+                    <span class="text-xs text-apple-blue font-bold uppercase tracking-wider">Tùy Chỉnh Sản Phẩm</span>
+                    <h3 id="config-title" class="text-2xl font-bold mt-1"></h3>
+                    <p id="config-price" class="text-xl font-medium text-apple-subtext mt-1"></p>
+
+                    <!-- Color Selector -->
+                    <div class="mt-6">
+                        <label class="block text-xs font-semibold text-apple-subtext uppercase mb-2">Màu Sắc</label>
+                        <div class="flex space-x-3">
+                            <button onclick="selectColor('Đen Space', 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80')" class="w-8 h-8 rounded-full bg-black border-2 border-white focus:outline-none focus:ring-2 focus:ring-apple-blue"></button>
+                            <button onclick="selectColor('Xám Titanium', 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80')" class="w-8 h-8 rounded-full bg-gray-500 border-2 border-transparent focus:outline-none focus:ring-2 focus:ring-apple-blue"></button>
+                            <button onclick="selectColor('Trắng Starlight', 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80')" class="w-8 h-8 rounded-full bg-gray-200 border-2 border-transparent focus:outline-none focus:ring-2 focus:ring-apple-blue"></button>
+                        </div>
+                        <span id="selected-color-text" class="text-xs text-apple-subtext mt-2 block">Đã chọn: Đen Space</span>
+                    </div>
+
+                    <!-- Size Selector -->
+                    <div class="mt-6">
+                        <label class="block text-xs font-semibold text-apple-subtext uppercase mb-2">Kích Cỡ (Size)</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="selectSize('S')" class="size-btn py-2 text-xs font-bold rounded-lg border border-gray-600 hover:border-white text-center">S</button>
+                            <button onclick="selectSize('M')" class="size-btn py-2 text-xs font-bold rounded-lg border border-apple-blue bg-apple-blue text-white text-center">M</button>
+                            <button onclick="selectSize('L')" class="size-btn py-2 text-xs font-bold rounded-lg border border-gray-600 hover:border-white text-center">L</button>
+                            <button onclick="selectSize('XL')" class="size-btn py-2 text-xs font-bold rounded-lg border border-gray-600 hover:border-white text-center">XL</button>
+                        </div>
+                    </div>
+
+                    <button onclick="confirmConfigAddToCart()" class="w-full mt-8 bg-apple-blue text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition flex items-center justify-center">
+                        Thêm Vào Giỏ Hàng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sliding Cart Drawer -->
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-apple-card shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-gray-200 dark:border-gray-800 flex flex-col">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+            <h3 class="text-lg font-semibold flex items-center"><i data-lucide="shopping-bag" class="w-5 h-5 mr-2"></i> Giỏ Hàng Của Bạn</h3>
+            <button onclick="toggleCart()" class="p-1 hover:text-apple-subtext"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div id="cart-items" class="p-6 overflow-y-auto flex-1 space-y-4">
+            <p class="text-apple-subtext text-sm text-center py-10">Giỏ hàng đang trống.</p>
+        </div>
+
+        <!-- Cart Footer -->
+        <div class="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-apple-bg">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-apple-subtext">Tạm tính:</span>
+                <span id="cart-subtotal" class="font-semibold">0₫</span>
+            </div>
+            <div class="flex justify-between text-sm mb-4">
+                <span class="text-apple-subtext">Vận chuyển:</span>
+                <span class="text-green-500 font-semibold">Miễn phí</span>
+            </div>
+            <div class="flex justify-between text-base font-bold mb-6 pt-2 border-t border-gray-700">
+                <span>Tổng cộng:</span>
+                <span id="cart-total" class="text-apple-blue">0₫</span>
+            </div>
+            <button onclick="startCheckout()" class="w-full bg-apple-blue text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition flex items-center justify-center">
+                Thanh Toán / Giao Hàng
+            </button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-apple-card w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-gray-800">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 class="text-2xl font-semibold">Thanh toán & giao hàng</h2>
+                    <p class="text-sm text-apple-subtext mt-1">Nhập thông tin nhận hàng và chọn phương thức thanh toán.</p>
+                </div>
+                <button type="button" onclick="closeCheckout()" class="p-1 text-apple-subtext hover:text-white" aria-label="Đóng">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="checkout-form" onsubmit="handleCheckout(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label class="block text-sm font-medium">
+                        Người nhận
+                        <input id="delivery-name" type="text" autocomplete="name" required class="mt-1 w-full bg-gray-100 dark:bg-apple-gray px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-apple-blue">
+                    </label>
+                    <label class="block text-sm font-medium">
+                        Số điện thoại
+                        <input id="delivery-phone" type="tel" autocomplete="tel" pattern="[0-9+() .-]{9,15}" required class="mt-1 w-full bg-gray-100 dark:bg-apple-gray px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-apple-blue">
+                    </label>
+                </div>
+                <label class="block text-sm font-medium">
+                    Địa chỉ giao hàng
+                    <input id="delivery-address" type="text" autocomplete="street-address" required class="mt-1 w-full bg-gray-100 dark:bg-apple-gray px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-apple-blue">
+                </label>
+                <label class="block text-sm font-medium">
+                    Ghi chú
+                    <textarea id="delivery-note" rows="2" class="mt-1 w-full bg-gray-100 dark:bg-apple-gray px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-apple-blue"></textarea>
+                </label>
+                <fieldset>
+                    <legend class="text-sm font-medium mb-2">Phương thức thanh toán</legend>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-sm cursor-pointer">
+                            <input type="radio" name="payment-method" value="cod" checked class="accent-blue-600">
+                            Thanh toán khi nhận hàng
+                        </label>
+                        <label class="flex items-center gap-2 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-sm cursor-pointer">
+                            <input type="radio" name="payment-method" value="bank-transfer" class="accent-blue-600">
+                            Chuyển khoản khi xác nhận
+                        </label>
+                    </div>
+                </fieldset>
+                <div class="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <span class="font-semibold">Tổng thanh toán</span>
+                    <span id="checkout-total" class="text-lg font-bold text-apple-blue">0₫</span>
+                </div>
+                <button type="submit" class="w-full bg-apple-blue text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition">Đặt hàng</button>
+                <p class="text-xs text-apple-subtext">Đây là đơn hàng thử nghiệm trên trình duyệt, chưa kết nối đơn vị vận chuyển hoặc cổng thanh toán.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- App Logic Script -->
+    <script>
+        // Initial Products Data
+        let products = [
+            { id: 1, inventoryId: 1, name: "Ao Khoac Pro", price: 3490000, img: "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80", desc: "Chống nước, thiết kế siêu nhẹ." },
+            { id: 2, inventoryId: 2, name: "Suede Bomber Jacket", price: 3190000, img: "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?auto=format&fit=crop&w=600&q=80", desc: "Chất liệu da lộn mềm mịn." },
+            { id: 12, inventoryId: 12, name: "Áo khoác", price: 2290000, img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80", desc: "Áo khoác thời trang." }
+        ];
+
+        function readStoredJson(key, fallback) {
+            try {
+                const value = localStorage.getItem(key);
+                return value ? JSON.parse(value) : fallback;
+            } catch {
+                return fallback;
+            }
+        }
+
+        let cart = readStoredJson('maison-cart', []);
+        let currentConfigProduct = null;
+        let selectedColor = "Đen Space";
+        let selectedSize = "M";
+        let pendingCartItem = null;
+        let checkoutRequested = false;
+
+        // Render Product List
+        function escapeProductText(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
+        function renderProducts() {
+            const list = document.getElementById('product-list');
+            const visibleProducts = products.filter(product => {
+                const inventoryProduct = window.inventoryCatalog?.get(String(product.inventoryId));
+                return !inventoryProduct || Number(inventoryProduct.hienTrangChu) !== 0;
+            });
+            list.innerHTML = visibleProducts.map(p => `
+                <div ${p.inventoryId ? `data-stock-id="${p.inventoryId}"` : ''} class="bg-gray-100 dark:bg-apple-card rounded-2xl p-4 border border-gray-200 dark:border-gray-800 flex flex-col justify-between hover:border-gray-500 transition">
+                    <img src="${escapeProductText(p.img)}" alt="${escapeProductText(p.name)}" class="w-full h-56 object-cover rounded-xl mb-4">
+                    <div>
+                        <h4 class="font-semibold text-base">${escapeProductText(p.name)}</h4>
+                        <p class="text-xs text-apple-subtext mt-1">${escapeProductText(p.desc)}</p>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <span class="font-bold text-sm">${p.price.toLocaleString('vi-VN')}₫</span>
+                        <button onclick="openConfigurator(${p.id})" class="text-xs bg-apple-blue text-white px-3 py-1.5 rounded-full hover:bg-blue-600 transition">
+                            Tùy chọn
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle Dark Mode
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Cart Actions
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function addToCart(name, price, variant, inventoryId = null) {
+            if (!localStorage.getItem('maison-user')) {
+                pendingCartItem = { name, price, variant, inventoryId };
+                toggleLogin();
+                return;
+            }
+
+            cart.push({ name, price, variant, inventoryId });
+            updateCartUI();
+            toggleCart();
+        }
+
+        function updateCartUI() {
+            localStorage.setItem('maison-cart', JSON.stringify(cart));
+            const count = document.getElementById('cart-count');
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const subtotalEl = document.getElementById('cart-subtotal');
+
+            count.innerText = cart.length;
+            count.classList.toggle('hidden', cart.length === 0);
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-apple-subtext text-sm text-center py-10">Giỏ hàng đang trống.</p>`;
+                totalEl.innerText = '0₫';
+                subtotalEl.innerText = '0₫';
+                return;
+            }
+
+            let total = 0;
+            container.innerHTML = cart.map((item, index) => {
+                total += item.price;
+                return `
+                    <div class="flex justify-between items-center bg-gray-100 dark:bg-apple-gray p-3 rounded-xl">
+                        <div>
+                            <h5 class="text-sm font-semibold">${item.name}</h5>
+                            <p class="text-xs text-apple-subtext">${item.variant}</p>
+                            <span class="text-xs font-bold text-apple-blue">${item.price.toLocaleString('vi-VN')}₫</span>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-apple-subtext hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                `;
+            }).join('');
+
+            totalEl.innerText = total.toLocaleString('vi-VN') + '₫';
+            subtotalEl.innerText = total.toLocaleString('vi-VN') + '₫';
+            lucide.createIcons();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        // Configurator Modal Logic
+        function openConfigurator(id) {
+            currentConfigProduct = products.find(p => p.id === id) || products[0];
+            document.getElementById('config-title').innerText = currentConfigProduct.name;
+            document.getElementById('config-price').innerText = currentConfigProduct.price.toLocaleString('vi-VN') + '₫';
+            document.getElementById('config-img').src = currentConfigProduct.img;
+            const inventoryProduct = window.inventoryCatalog?.get(String(currentConfigProduct.inventoryId));
+            const availableSizes = inventoryProduct?.sizes || [];
+            const sizeButtons = [...document.querySelectorAll('.size-btn')];
+            const availableButtons = [];
+
+            sizeButtons.forEach(button => {
+                const size = button.textContent.trim();
+                const inventorySize = availableSizes.find(item =>
+                    item.size.replace(/^Size\s*/i, '') === size && Number(item.so_luong) > 0
+                );
+                button.hidden = !inventorySize;
+                button.style.display = inventorySize ? '' : 'none';
+                button.disabled = !inventorySize;
+                button.classList.remove('border-apple-blue', 'bg-apple-blue', 'text-white');
+                button.classList.add('border-gray-600');
+                if (inventorySize) availableButtons.push(button);
+            });
+
+            if (availableButtons.length > 0) {
+                selectedSize = availableButtons[0].textContent.trim();
+                availableButtons[0].classList.remove('border-gray-600');
+                availableButtons[0].classList.add('border-apple-blue', 'bg-apple-blue', 'text-white');
+            }
+            document.getElementById('config-modal').classList.remove('hidden');
+        }
+
+        function closeConfigurator() {
+            document.getElementById('config-modal').classList.add('hidden');
+        }
+
+        function selectColor(colorName, imgUrl) {
+            selectedColor = colorName;
+            document.getElementById('selected-color-text').innerText = 'Đã chọn: ' + colorName;
+            if (imgUrl) document.getElementById('config-img').src = imgUrl;
+        }
+
+        function selectSize(size) {
+            selectedSize = size;
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.remove('border-apple-blue', 'bg-apple-blue', 'text-white');
+                btn.classList.add('border-gray-600');
+            });
+            event.target.classList.add('border-apple-blue', 'bg-apple-blue', 'text-white');
+        }
+
+        function confirmConfigAddToCart() {
+            addToCart(currentConfigProduct.name, currentConfigProduct.price, `${selectedColor} / Size ${selectedSize}`, currentConfigProduct.inventoryId);
+            closeConfigurator();
+        }
+
+        // Search Modal Toggle
+        function toggleSearch() {
+            const modal = document.getElementById('search-modal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            } else {
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        function toggleLogin() {
+            if (localStorage.getItem('maison-user')) {
+                localStorage.removeItem('maison-user');
+                updateAccountButton();
+                return;
+            }
+
+            const modal = document.getElementById('login-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('login-email').focus();
+        }
+
+        function closeLogin() {
+            const modal = document.getElementById('login-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            if (!localStorage.getItem('maison-user')) {
+                pendingCartItem = null;
+                checkoutRequested = false;
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            localStorage.setItem('maison-user', email);
+            updateAccountButton();
+            closeLogin();
+            document.getElementById('login-form').reset();
+
+            if (pendingCartItem) {
+                const item = pendingCartItem;
+                pendingCartItem = null;
+                addToCart(item.name, item.price, item.variant);
+            }
+
+            if (checkoutRequested) {
+                checkoutRequested = false;
+                startCheckout();
+            }
+        }
+
+        function updateAccountButton() {
+            const email = localStorage.getItem('maison-user');
+            const label = document.getElementById('account-label');
+            label.innerText = email ? 'Đăng xuất' : 'Đăng nhập';
+            document.getElementById('account-button').setAttribute('aria-label', email ? `Đăng xuất ${email}` : 'Đăng nhập');
+        }
+
+        function startCheckout() {
+            if (!localStorage.getItem('maison-user')) {
+                checkoutRequested = true;
+                toggleLogin();
+                return;
+            }
+            if (cart.length === 0) {
+                alert('Giỏ hàng đang trống.');
+                return;
+            }
+
+            const profile = readStoredJson('maison-delivery-profile', {});
+            document.getElementById('delivery-name').value = profile.name || '';
+            document.getElementById('delivery-phone').value = profile.phone || '';
+            document.getElementById('delivery-address').value = profile.address || '';
+            document.getElementById('delivery-note').value = profile.note || '';
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('checkout-total').innerText = total.toLocaleString('vi-VN') + '₫';
+            if (!document.getElementById('cart-drawer').classList.contains('translate-x-full')) {
+                toggleCart();
+            }
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            document.getElementById('checkout-modal').classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeCheckout() {
+            const modal = document.getElementById('checkout-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function handleCheckout(event) {
+            event.preventDefault();
+            if (!localStorage.getItem('maison-user')) {
+                checkoutRequested = true;
+                closeCheckout();
+                toggleLogin();
+                return;
+            }
+
+            const delivery = {
+                name: document.getElementById('delivery-name').value.trim(),
+                phone: document.getElementById('delivery-phone').value.trim(),
+                address: document.getElementById('delivery-address').value.trim(),
+                note: document.getElementById('delivery-note').value.trim()
+            };
+
+            const requestedStock = new Map();
+            for (const item of cart) {
+                const matchingProduct = products.find(product => product.name === item.name);
+                const inventoryId = Number(item.inventoryId || matchingProduct?.inventoryId);
+                if (!Number.isInteger(inventoryId) || inventoryId <= 0) {
+                    alert(`Sản phẩm "${item.name}" chưa được liên kết với dữ liệu kho.`);
+                    return;
+                }
+                requestedStock.set(inventoryId, (requestedStock.get(inventoryId) || 0) + 1);
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/sell', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `items=${[...requestedStock].map(([id, quantity]) => `${id}:${quantity}`).join(',')}`
+                });
+                const responseText = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch {
+                    if (response.status === 404) {
+                        throw new Error('Máy chủ kho đang chạy phiên bản cũ. Hãy khởi động lại server.exe rồi thử lại.');
+                    }
+                    throw new Error(`Máy chủ kho trả về dữ liệu không hợp lệ (HTTP ${response.status}).`);
+                }
+                if (!response.ok || result.status !== 'success') {
+                    throw new Error(result.message || 'Không thể cập nhật số lượng tồn kho.');
+                }
+            } catch (error) {
+                alert(error.message || 'Không kết nối được máy chủ kho. Đơn hàng chưa được tạo.');
+                if (typeof refreshInventory === 'function') await refreshInventory();
+                return;
+            }
+
+            const order = {
+                id: Date.now(),
+                email: localStorage.getItem('maison-user'),
+                items: [...cart],
+                total: cart.reduce((sum, item) => sum + item.price, 0),
+                delivery,
+                payment: document.querySelector('input[name="payment-method"]:checked').value,
+                createdAt: new Date().toISOString()
+            };
+            const orders = readStoredJson('maison-orders', []);
+            orders.push(order);
+            localStorage.setItem('maison-orders', JSON.stringify(orders));
+            localStorage.setItem('maison-delivery-profile', JSON.stringify(delivery));
+            cart = [];
+            updateCartUI();
+            closeCheckout();
+            document.getElementById('checkout-form').reset();
+            if (typeof refreshInventory === 'function') await refreshInventory();
+            alert('Đặt hàng thành công! Thông tin đơn hàng đã được lưu trên thiết bị này.');
+        }
+
+        // Init App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateAccountButton();
+            updateCartUI();
+            lucide.createIcons();
+        });
+    </script>
+    <script src="js/inventory.js"></script>
+</body>
+</html>

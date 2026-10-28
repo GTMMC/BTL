@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa Hàng MAISON — Mua Sản Phẩm Mới Nhất</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        apple: {
+                            bg: '#161617',
+                            card: '#1c1c1e',
+                            text: '#f5f5f7',
+                            subtext: '#86868b',
+                            blue: '#0066cc',
+                            gray: '#2c2c2e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .backdrop-blur-apple {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .bento-card {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bento-card:hover {
+            transform: scale(1.015);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-[#f5f5f7] dark:bg-apple-bg text-gray-900 dark:text-apple-text font-sans antialiased selection:bg-apple-blue selection:text-white transition-colors duration-300">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-apple-bg/80 backdrop-blur-apple border-b border-gray-200 dark:border-gray-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between text-sm">
+            <div class="flex items-center space-x-8">
+                <a href="index.html" class="font-bold text-lg tracking-tight hover:opacity-80 transition">MAISON</a>
+                <nav class="hidden md:flex space-x-6 text-xs text-gray-600 dark:text-apple-subtext font-medium">
+                    <a href="store.html" class="text-black dark:text-white font-semibold transition">Cửa Hàng</a>
+                    <a href="aokhoac.html" class="hover:text-black dark:hover:text-white transition">Áo Khoác</a>
+                    <a href="bosuutap.html" class="hover:text-black dark:hover:text-white transition">Bộ Sưu Tập</a>
+                    <a href="phukien.html" class="hover:text-black dark:hover:text-white transition">Phụ Kiện</a>
+                </nav>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <!-- Toggle Theme -->
+                <button id="theme-toggle" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-apple-gray transition" title="Đổi giao diện">
+                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+                </button>
+
+                <!-- Cart Icon -->
+                <button onclick="toggleCart()" class="p-1 hover:text-apple-blue transition relative">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-2 bg-apple-blue text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Store Body -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20 space-y-16">
+
+        <!-- Store Hero Title -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <h1 class="text-4xl md:text-6xl font-semibold tracking-tight">
+                    Cửa Hàng. <span class="text-apple-subtext">Cách tốt nhất để mua các sản phẩm bạn thích.</span>
+                </h1>
+            </div>
+            <div class="text-xs text-apple-subtext flex items-center space-x-2">
+                <i data-lucide="user-check" class="w-4 h-4 text-apple-blue"></i>
+                <span>Cần tư vấn trực tiếp? <a href="#" class="text-apple-blue underline">Hỏi chuyên gia MAISON</a></span>
+            </div>
+        </div>
+
+        <!-- Apple-style Horizontal Category Bar -->
+        <section class="flex space-x-8 overflow-x-auto no-scrollbar py-4 border-b border-gray-200 dark:border-gray-800">
+            <a href="#ao-khoac" class="flex flex-col items-center space-y-2 min-w-[80px] group">
+                <div class="w-16 h-16 rounded-full bg-white dark:bg-apple-card flex items-center justify-center shadow-sm group-hover:scale-105 transition">
+                    <i data-lucide="shirt" class="w-7 h-7 text-apple-blue"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700 dark:text-apple-subtext group-hover:text-black dark:group-hover:text-white">Áo Khoác</span>
+            </a>
+            <a href="#ao-thun" class="flex flex-col items-center space-y-2 min-w-[80px] group">
+                <div class="w-16 h-16 rounded-full bg-white dark:bg-apple-card flex items-center justify-center shadow-sm group-hover:scale-105 transition">
+                    <i data-lucide="layers" class="w-7 h-7 text-purple-500"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700 dark:text-apple-subtext group-hover:text-black dark:group-hover:text-white">Áo Thun</span>
+            </a>
+            <a href="#quan" class="flex flex-col items-center space-y-2 min-w-[80px] group">
+                <div class="w-16 h-16 rounded-full bg-white dark:bg-apple-card flex items-center justify-center shadow-sm group-hover:scale-105 transition">
+                    <i data-lucide="scissors" class="w-7 h-7 text-emerald-500"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700 dark:text-apple-subtext group-hover:text-black dark:group-hover:text-white">Quần Nam</span>
+            </a>
+            <a href="#phu-kien" class="flex flex-col items-center space-y-2 min-w-[80px] group">
+                <div class="w-16 h-16 rounded-full bg-white dark:bg-apple-card flex items-center justify-center shadow-sm group-hover:scale-105 transition">
+                    <i data-lucide="watch" class="w-7 h-7 text-orange-500"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700 dark:text-apple-subtext group-hover:text-black dark:group-hover:text-white">Phụ Kiện</span>
+            </a>
+        </section>
+
+        <!-- Section 1: Sản Phẩm Mới Nhất (Cards Carousel Style) -->
+        <section id="ao-khoac">
+            <h2 class="text-2xl md:text-3xl font-semibold tracking-tight mb-6">
+                Mới Ra Mắt. <span class="text-apple-subtext">Xem ngay những gì mới nhất.</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Large Highlight Card -->
+                <div data-stock-id="1" class="md:col-span-2 bg-white dark:bg-apple-card rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden min-h-[420px] shadow-sm border border-gray-200 dark:border-gray-800 bento-card">
+                    <div class="z-10 max-w-sm">
+                        <span class="text-xs font-semibold text-orange-500 uppercase tracking-wider">MỚI</span>
+                        <h3 class="text-3xl font-semibold mt-2">UltraLight Jacket Pro</h3>
+                        <p class="text-apple-subtext text-sm mt-2">Chống nước tối đa, gọn nhẹ đẳng cấp. Sẵn sàng cho mọi điều kiện thời tiết.</p>
+                        <p class="text-base font-medium mt-4">Từ 3.490.000₫</p>
+                    </div>
+                    <div class="mt-6 z-10">
+                        <button onclick="addToCart('UltraLight Jacket Pro', 3490000, 'Đen Space')" class="bg-apple-blue text-white px-5 py-2.5 rounded-full text-xs font-semibold hover:bg-blue-600 transition">MUA NGAY</button>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=1000&q=80" class="absolute right-0 bottom-0 w-3/5 h-full object-cover rounded-r-3xl" alt="Jacket">
+                </div>
+
+                <!-- Secondary Card -->
+                <div data-stock-id="2" class="bg-white dark:bg-apple-card rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden min-h-[420px] shadow-sm border border-gray-200 dark:border-gray-800 bento-card">
+                    <div>
+                        <span class="text-xs font-semibold text-apple-subtext uppercase">THỜI TRANG ĐÔ THỊ</span>
+                        <h3 class="text-2xl font-semibold mt-1">Organic Hoodie</h3>
+                        <p class="text-apple-subtext text-sm mt-1">100% Bông hữu cơ êm ái.</p>
+                        <p class="text-sm font-semibold mt-3">1.890.000₫</p>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80" class="w-full h-52 object-cover rounded-2xl my-4" alt="Hoodie">
+                    <button onclick="addToCart('Organic Hoodie', 1890000, 'Xám')" class="w-full bg-gray-100 dark:bg-apple-gray text-black dark:text-white py-2.5 rounded-xl text-xs font-bold hover:bg-apple-blue hover:text-white transition">Thêm Vào Giỏ</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Ưu đãi & Trải nghiệm Apple-style -->
+        <section class="bg-white dark:bg-apple-card rounded-3xl p-8 border border-gray-200 dark:border-gray-800 shadow-sm">
+            <h2 class="text-2xl font-semibold tracking-tight mb-6">Lý Do Chọn MAISON.</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="space-y-2">
+                    <i data-lucide="truck" class="w-8 h-8 text-apple-blue"></i>
+                    <h4 class="font-semibold text-base">Giao hàng miễn phí</h4>
+                    <p class="text-xs text-apple-subtext leading-relaxed">Giao hàng tận nơi miễn phí toàn quốc cho mọi đơn hàng từ 1 triệu đồng.</p>
+                </div>
+                <div class="space-y-2">
+                    <i data-lucide="refresh-cw" class="w-8 h-8 text-green-500"></i>
+                    <h4 class="font-semibold text-base">Đổi trả trong 30 ngày</h4>
+                    <p class="text-xs text-apple-subtext leading-relaxed">Dễ dàng đổi size hoặc mẫu mã hoàn toàn miễn phí tại cửa hàng.</p>
+                </div>
+                <div class="space-y-2">
+                    <i data-lucide="shield-check" class="w-8 h-8 text-purple-500"></i>
+                    <h4 class="font-semibold text-base">Bảo hành chất liệu</h4>
+                    <p class="text-xs text-apple-subtext leading-relaxed">Cam kết chất lượng vải tốt nhất, không xù lông hay phai màu.</p>
+                </div>
+                <div class="space-y-2">
+                    <i data-lucide="credit-card" class="w-8 h-8 text-orange-500"></i>
+                    <h4 class="font-semibold text-base">Trả góp 0%</h4>
+                    <p class="text-xs text-apple-subtext leading-relaxed">Hỗ trợ trả góp linh hoạt qua thẻ tín dụng với lãi suất 0%.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Tất cả sản phẩm -->
+        <section id="ao-thun" class="space-y-6">
+            <h2 class="text-2xl md:text-3xl font-semibold tracking-tight">
+                Bộ Sưu Tập Nổi Bật.
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <!-- Product Card 1 -->
+                <div data-stock-id="12" class="bg-white dark:bg-apple-card rounded-2xl p-5 border border-gray-200 dark:border-gray-800 flex flex-col justify-between hover:shadow-lg transition">
+                    <div>
+                        <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80" alt="Shirt" class="w-full h-52 object-cover rounded-xl mb-4">
+                        <span class="text-[10px] text-apple-blue font-bold tracking-widest uppercase">MÀU MỚI</span>
+                        <h4 class="font-semibold text-base mt-1">Minimalist Supima Tee</h4>
+                        <p class="text-xs text-apple-subtext mt-1">Co giãn 4 chiều, mềm mịn vượt trội.</p>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <span class="font-bold text-sm">790.000₫</span>
+                        <button onclick="addToCart('Minimalist Supima Tee', 790000, 'Trắng')" class="bg-apple-blue text-white px-3 py-1.5 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua</button>
+                    </div>
+                </div>
+
+                <!-- Product Card 2 -->
+                <div data-stock-id="10" class="bg-white dark:bg-apple-card rounded-2xl p-5 border border-gray-200 dark:border-gray-800 flex flex-col justify-between hover:shadow-lg transition">
+                    <div>
+                        <img src="https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=600&q=80" alt="Pants" class="w-full h-52 object-cover rounded-xl mb-4">
+                        <span class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">BESTSELLER</span>
+                        <h4 class="font-semibold text-base mt-1">Tailored Slim Trousers</h4>
+                        <p class="text-xs text-apple-subtext mt-1">Form đứng chuẩn phong cách công sở.</p>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <span class="font-bold text-sm">1.590.000₫</span>
+                        <button onclick="addToCart('Tailored Slim Trousers', 1590000, 'Đen')" class="bg-apple-blue text-white px-3 py-1.5 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua</button>
+                    </div>
+                </div>
+
+                <!-- Product Card 3 -->
+                <div data-stock-id="3" class="bg-white dark:bg-apple-card rounded-2xl p-5 border border-gray-200 dark:border-gray-800 flex flex-col justify-between hover:shadow-lg transition">
+                    <div>
+                        <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80" alt="Jacket" class="w-full h-52 object-cover rounded-xl mb-4">
+                        <span class="text-[10px] text-purple-500 font-bold tracking-widest uppercase">LIMITED</span>
+                        <h4 class="font-semibold text-base mt-1">Denim Heritage Jacket</h4>
+                        <p class="text-xs text-apple-subtext mt-1">Chất liệu Denim cổ điển cao cấp.</p>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <span class="font-bold text-sm">2.290.000₫</span>
+                        <button onclick="addToCart('Denim Heritage Jacket', 2290000, 'Xanh Denim')" class="bg-apple-blue text-white px-3 py-1.5 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua</button>
+                    </div>
+                </div>
+
+                <!-- Product Card 4 -->
+                <div data-stock-id="2" class="bg-white dark:bg-apple-card rounded-2xl p-5 border border-gray-200 dark:border-gray-800 flex flex-col justify-between hover:shadow-lg transition">
+                    <div>
+                        <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80" alt="Leather Jacket" class="w-full h-52 object-cover rounded-xl mb-4">
+                        <span class="text-[10px] text-orange-500 font-bold tracking-widest uppercase">CAO CẤP</span>
+                        <h4 class="font-semibold text-base mt-1">Leather Biker Jacket</h4>
+                        <p class="text-xs text-apple-subtext mt-1">Da thật 100%, đường may tinh xảo.</p>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <span class="font-bold text-sm">4.990.000₫</span>
+                        <button onclick="addToCart('Leather Biker Jacket', 4990000, 'Đen Nappa')" class="bg-apple-blue text-white px-3 py-1.5 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Sliding Cart Drawer -->
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-apple-card shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-gray-200 dark:border-gray-800 flex flex-col">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+            <h3 class="text-lg font-semibold flex items-center"><i data-lucide="shopping-bag" class="w-5 h-5 mr-2"></i> Giỏ Hàng Của Bạn</h3>
+            <button onclick="toggleCart()" class="p-1 hover:text-apple-subtext"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div id="cart-items" class="p-6 overflow-y-auto flex-1 space-y-4">
+            <p class="text-apple-subtext text-sm text-center py-10">Giỏ hàng đang trống.</p>
+        </div>
+
+        <!-- Cart Footer -->
+        <div class="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-apple-bg">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-apple-subtext">Tạm tính:</span>
+                <span id="cart-subtotal" class="font-semibold">0₫</span>
+            </div>
+            <div class="flex justify-between text-sm mb-4">
+                <span class="text-apple-subtext">Vận chuyển:</span>
+                <span class="text-green-500 font-semibold">Miễn phí</span>
+            </div>
+            <div class="flex justify-between text-base font-bold mb-6 pt-2 border-t border-gray-700">
+                <span>Tổng cộng:</span>
+                <span id="cart-total" class="text-apple-blue">0₫</span>
+            </div>
+            <button onclick="alert('Chức năng Thanh Toán đang kết nối cổng Apple Pay!')" class="w-full bg-apple-blue text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition flex items-center justify-center">
+                Thanh Toán Chi Tiết
+            </button>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        let cart = [];
+
+        // Toggle Dark Mode
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Cart Actions
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function addToCart(name, price, variant) {
+            cart.push({ name, price, variant });
+            updateCartUI();
+            toggleCart();
+        }
+
+        function updateCartUI() {
+            const count = document.getElementById('cart-count');
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const subtotalEl = document.getElementById('cart-subtotal');
+
+            count.innerText = cart.length;
+            count.classList.toggle('hidden', cart.length === 0);
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-apple-subtext text-sm text-center py-10">Giỏ hàng đang trống.</p>`;
+                totalEl.innerText = '0₫';
+                subtotalEl.innerText = '0₫';
+                return;
+            }
+
+            let total = 0;
+            container.innerHTML = cart.map((item, index) => {
+                total += item.price;
+                return `
+                    <div class="flex justify-between items-center bg-gray-100 dark:bg-apple-gray p-3 rounded-xl">
+                        <div>
+                            <h5 class="text-sm font-semibold">${item.name}</h5>
+                            <p class="text-xs text-apple-subtext">${item.variant}</p>
+                            <span class="text-xs font-bold text-apple-blue">${item.price.toLocaleString('vi-VN')}₫</span>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-apple-subtext hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                `;
+            }).join('');
+
+            totalEl.innerText = total.toLocaleString('vi-VN') + '₫';
+            subtotalEl.innerText = total.toLocaleString('vi-VN') + '₫';
+            lucide.createIcons();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+    <script src="js/inventory.js"></script>
+</body>
+</html>
