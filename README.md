@@ -1,37 +1,74 @@
-# MAISON - Website bán hàng và quản lý kho
+# BÀI TẬP LỚN: WEBSITE THỜI TRANG MAISON VÀ QUẢN LÝ KHO
 
-## Mô tả đề tài
+> **Môn học:** [Cấu Trúc Dữ Liệu Và Giải Thuật]<br>
+> **Lớp:** [CQ.66.KT-ĐTVT]<br>
+> **Nhóm thực hiện:** [Nhóm 12]
 
-MAISON là website bán hàng thời trang kết hợp hệ thống quản lý kho. Khách hàng có thể xem sản phẩm, chọn kích cỡ, thêm vào giỏ hàng và đặt mua. Nhân viên có thể thêm, sửa, xóa sản phẩm; cập nhật ảnh và vị trí hiển thị; nhập hàng, ghi nhận bán hàng và kiểm tra tồn kho. Backend C++ quản lý sản phẩm bằng danh sách liên kết tự khai báo và lưu dữ liệu trong `kho2/kho.json`.
+---
 
-Giao diện sử dụng HTML, CSS và JavaScript; backend sử dụng C++ và Winsock để cung cấp API trên `localhost:8080`.
+## 👥 Danh sách Thành viên
 
-## Yêu cầu
+| STT | Họ và Tên | MSSV | Vai trò / Nhiệm vụ | GitHub Username |
+| 1 | [Đặng Duy Tùy Kê]         | [6651020030] | [Nhóm Trưởng/Thiết kế và triển khai cấu trúc,UI] | [@username](https://github.com/) |
+| 2 | [Trương Phạm Gia Huy]     | [6651020028] | [Thành viên/TT Quản lý danh sách sản phẩm]       | [@username](https://github.com/) |
+| 3 | [Võ Đình Khải]            | [6651020031] | [Thành viên/TT Quản lý kích cỡ và tồn kho]       | [@username](https://github.com/) |
+| 4 | [Hoàng Phi Hùng]          | [6651020024] | [Thành viên/TT Thống kê và kiểm thử]             | [@username](https://github.com/) |
+| 5 | [Lê Nguyễn Ngọc Bảo Châu] | [6651020030] | [Thành viên/TT Tìm kiếm và lọc sản phẩm]         | [@username](https://github.com/) |
+---
 
-- Windows
-- Trình biên dịch C++ có hỗ trợ Winsock, ví dụ MinGW-w64/GCC
-- Trình duyệt web
-- Kết nối Internet để tải một số thư viện giao diện và ảnh từ CDN
+## 📌 Giới thiệu Đề tài
 
-## Biên dịch và chạy backend
+MAISON là website thời trang kết hợp với chương trình quản lý kho. Website cung cấp giao diện giới thiệu và trưng bày sản phẩm; nhân viên có thể quản lý sản phẩm và theo dõi số lượng tồn kho theo kích cỡ.
+
+Các tính năng chính:
+
+- Hiển thị sản phẩm trên trang chủ, cửa hàng và trang áo khoác; hỗ trợ tìm kiếm, giỏ hàng và chuyển đổi giao diện sáng/tối.
+- Quản lý kho: xem danh sách và thống kê sản phẩm, lọc theo danh mục, thêm/cập nhật/xóa sản phẩm, cập nhật ảnh và vị trí hiển thị.
+- Nhập hàng và ghi nhận bán hàng theo sản phẩm, kích cỡ; theo dõi số lượng tồn và số lượng đã bán.
+- Lưu dữ liệu kho trong file JSON để dùng chung giữa website và chương trình quản lý kho.
+
+> Đăng nhập trên website hiện chỉ lưu trạng thái trên thiết bị, chưa xác thực tài khoản qua máy chủ.
+
+---
+
+## 🛠️ Yêu cầu Hệ thống & Môi trường
+
+- **Hệ điều hành:** Windows (backend sử dụng Winsock).
+- **Trình biên dịch:** MinGW-w64/GCC có hỗ trợ C++11 và Winsock.
+- **Trình duyệt:** Chrome, Edge, Firefox hoặc trình duyệt hiện đại tương đương.
+- **Công cụ khuyến nghị:** Visual Studio Code và tiện ích Live Server.
+- **Kết nối Internet:** Cần thiết để tải Tailwind CSS, biểu tượng và một số tài nguyên giao diện từ CDN.
+
+---
+
+## 🚀 Hướng dẫn Cài đặt & Chạy
+
+### 1. Tải dự án về máy
+
+```bash
+git clone https://github.com/GTMMC/BTL.git
+cd BTL
+```
+
+### 2. Biên dịch và chạy backend quản lý kho
 
 Mở PowerShell tại thư mục dự án, sau đó chạy:
 
 ```powershell
 cd D:\code\baitapweb\kho
-g++ kho/server.cpp -o kho/server.exe -std=c++11 -lws2_32
-.\kho\server.exe
+g++ -std=c++11 server.cpp -o server.exe -lws2_32
+.\server.exe
 ```
 
-Giữ cửa sổ server mở khi sử dụng website. Backend đọc và ghi `kho.json` trong thư mục hiện tại. Nếu cổng `8080` đang được sử dụng, hãy đóng chương trình đang chiếm cổng rồi chạy lại.
+Giữ cửa sổ terminal đang chạy server. Server cung cấp API tại `http://localhost:8080` và đọc/ghi dữ liệu trong `kho\kho.json` theo thư mục làm việc hiện tại. Vì vậy, hãy chạy `server.exe` từ thư mục `kho`. Nếu cổng `8080` đang được sử dụng, hãy đóng chương trình đang chiếm cổng rồi khởi động lại server.
 
-## Mở website
+### 3. Mở giao diện website
 
-Mở thư mục `D:\code\baitapweb` bằng VS Code và dùng tiện ích **Live Server** để mở `index.html`. Các trang chính:
+Mở thư mục dự án bằng VS Code, dùng **Live Server** để mở `index.html`. Các trang chính:
 
-- `index.html`: Trang chủ
-- `store.html`: Cửa hàng
-- `aokhoac.html`: Sản phẩm áo khoác
-- `kho2/index.html`: Quản lý kho
+- `index.html`: Trang chủ.
+- `store.html`: Trang cửa hàng.
+- `aokhoac.html`: Trang sản phẩm áo khoác.
+- `kho/index.html`: Giao diện quản lý kho.
 
-Backend phải đang chạy để các chức năng đọc và cập nhật dữ liệu kho hoạt động.
+Backend cần hoạt động để website tải số lượng tồn và để các chức năng cập nhật kho được lưu vào file JSON.
