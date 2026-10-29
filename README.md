@@ -19,7 +19,7 @@ Mở PowerShell tại thư mục dự án, sau đó chạy:
 
 ```powershell
 cd D:\code\baitapweb\kho
-g++ -std=c++11 server.cpp -o server.exe -lws2_32
+g++ kho/server.cpp -o kho/server.exe -std=c++11 -lws2_32
 .\server.exe
 ```
 
