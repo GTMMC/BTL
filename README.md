@@ -18,7 +18,7 @@ Giao diện sử dụng HTML, CSS và JavaScript; backend sử dụng C++ và Wi
 Mở PowerShell tại thư mục dự án, sau đó chạy:
 
 ```powershell
-cd D:\code\baitapweb\kho2
+cd D:\code\baitapweb\kho
 g++ -std=c++11 server.cpp -o server.exe -lws2_32
 .\server.exe
 ```
