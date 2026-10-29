@@ -20,7 +20,7 @@ Mở PowerShell tại thư mục dự án, sau đó chạy:
 ```powershell
 cd D:\code\baitapweb\kho
 g++ kho/server.cpp -o kho/server.exe -std=c++11 -lws2_32
-.\server.exe
+.\kho\server.exe
 ```
 
 Giữ cửa sổ server mở khi sử dụng website. Backend đọc và ghi `kho.json` trong thư mục hiện tại. Nếu cổng `8080` đang được sử dụng, hãy đóng chương trình đang chiếm cổng rồi chạy lại.
