@@ -13,7 +13,7 @@
 | 2 | [Trương Phạm Gia Huy]     | [6651020028] | [Thành viên/TT Quản lý danh sách sản phẩm]       | [@username](https://github.com/) |
 | 3 | [Võ Đình Khải]            | [6651020031] | [Thành viên/TT Quản lý kích cỡ và tồn kho]       | [@username](https://github.com/) |
 | 4 | [Hoàng Phi Hùng]          | [6651020024] | [Thành viên/TT Thống kê và kiểm thử]             | [@username](https://github.com/) |
-| 5 | [Lê Nguyễn Ngọc Bảo Châu] | [6651020030] | [Thành viên/TT Tìm kiếm và lọc sản phẩm]         | [@username](https://github.com/) |
+| 5 | [Lê Nguyễn Ngọc Bảo Châu] | [6651020005] | [Thành viên/TT Tìm kiếm và lọc sản phẩm]         | [@username](https://github.com/) |
 ---
 
 ## 📌 Giới thiệu Đề tài
@@ -25,6 +25,7 @@ Các tính năng chính:
 - Hiển thị sản phẩm trên trang chủ, cửa hàng và trang áo khoác; hỗ trợ tìm kiếm, giỏ hàng và chuyển đổi giao diện sáng/tối.
 - Quản lý kho: xem danh sách và thống kê sản phẩm, lọc theo danh mục, thêm/cập nhật/xóa sản phẩm, cập nhật ảnh và vị trí hiển thị.
 - Nhập hàng và ghi nhận bán hàng theo sản phẩm, kích cỡ; theo dõi số lượng tồn và số lượng đã bán.
+- Website gửi đơn đặt hàng đến kho ở trạng thái chờ duyệt; nhân viên duyệt đơn trên trang kho để trừ tồn và tăng số lượng đã bán.
 - Lưu dữ liệu kho trong file JSON để dùng chung giữa website và chương trình quản lý kho.
 
 > Đăng nhập trên website hiện chỉ lưu trạng thái trên thiết bị, chưa xác thực tài khoản qua máy chủ.
@@ -55,7 +56,7 @@ cd BTL
 Mở PowerShell tại thư mục dự án, sau đó chạy:
 
 ```powershell
-cd D:\code\baitapweb\kho
+cd .\kho
 g++ -std=c++11 server.cpp -o server.exe -lws2_32
 .\server.exe
 ```
@@ -71,4 +72,11 @@ Mở thư mục dự án bằng VS Code, dùng **Live Server** để mở `index
 - `aokhoac.html`: Trang sản phẩm áo khoác.
 - `kho/index.html`: Giao diện quản lý kho.
 
-Backend cần hoạt động để website tải số lượng tồn và để các chức năng cập nhật kho được lưu vào file JSON.
+Backend cần hoạt động để website tải số lượng tồn, gửi đơn hàng và để các chức năng cập nhật kho được lưu vào file JSON. Đơn hàng được lưu trong `kho\don_hang.json` (tạo tự động khi có đơn đầu tiên), độc lập với `kho\kho.json`.
+
+### 4. Nhận và duyệt đơn hàng
+
+1. Khách thêm sản phẩm theo size vào giỏ trên trang chủ và gửi đơn tại checkout.
+2. Đơn xuất hiện ở mục **Đơn hàng từ website** trên `kho/index.html` với trạng thái **Chờ duyệt**. Gửi đơn chưa làm thay đổi tồn kho.
+3. Nhân viên chọn **Duyệt và ghi nhận bán**. Backend kiểm tra tồn của toàn bộ mặt hàng trước khi cập nhật; khi lưu thành công, tồn giảm và số lượng đã bán tăng.
+4. Đơn đã duyệt được lưu cùng trạng thái trong `don_hang.json`; yêu cầu duyệt lại bị từ chối để tránh ghi nhận bán trùng.

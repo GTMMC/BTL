@@ -356,7 +356,9 @@
 
         function applyJacketCategoryFilter() {
             document.querySelectorAll('[data-stock-id]').forEach(card => {
-                const product = window.inventoryCatalog?.get(card.dataset.stockId);
+                const product = window.inventoryCatalog?.find(item =>
+                    String(item.id) === String(card.dataset.stockId)
+                );
                 const matchesCategory = !activeJacketCategory || product?.danhMuc === activeJacketCategory;
                 card.hidden = !product || Number(product.hienAoKhoac) === 0 || !matchesCategory;
                 card.style.display = card.hidden ? 'none' : '';
