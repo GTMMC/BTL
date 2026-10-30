@@ -9,13 +9,10 @@ async function refreshInventory() {
         const inventoryProducts = Array.isArray(data) ? data : data.san_pham;
         if (!Array.isArray(inventoryProducts)) throw new Error('Dữ liệu kho không đúng định dạng.');
 
-        const inventory = new Map(inventoryProducts.map(product => [
-            String(product.id),
-            {
-                ...product,
-                stock: (product.sizes || []).reduce((total, size) => total + Number(size.so_luong || 0), 0)
-            }
-        ]));
+        const inventory = inventoryProducts.map(product => ({
+            ...product,
+            stock: (product.sizes || []).reduce((total, size) => total + Number(size.so_luong || 0), 0)
+        }));
         window.inventoryCatalog = inventory;
 
         if (typeof products !== 'undefined' && typeof renderProducts === 'function') {
@@ -32,9 +29,13 @@ async function refreshInventory() {
                 });
                 productIds.add(String(product.id));
             });
-            products = products.filter(item => inventory.has(String(item.inventoryId)));
+            products = products.filter(item =>
+                inventory.some(product => String(product.id) === String(item.inventoryId))
+            );
             products.forEach(item => {
-                const product = inventory.get(String(item.inventoryId));
+                const product = inventory.find(product =>
+                    String(product.id) === String(item.inventoryId)
+                );
                 item.name = product.ten;
                 if (Number(product.gia) > 0) item.price = Number(product.gia);
                 if (product.img) item.img = product.img;
@@ -44,7 +45,7 @@ async function refreshInventory() {
         }
 
         document.querySelectorAll('[data-stock-id]').forEach(card => {
-            const product = inventory.get(card.dataset.stockId);
+            const product = inventory.find(item => String(item.id) === String(card.dataset.stockId));
             const visibilityField = document.body.dataset.inventorySection === 'home'
                 ? 'hienTrangChu'
                 : document.body.dataset.inventorySection === 'jacket' ? 'hienAoKhoac' : '';
@@ -109,7 +110,9 @@ document.addEventListener('click', event => {
         ? event.target.closest('button[onclick*="addToCart"], button[data-inventory-add]')
         : null;
     const card = button?.closest('[data-stock-id]');
-    const product = card && window.inventoryCatalog?.get(card.dataset.stockId);
+    const product = card && window.inventoryCatalog?.find(item =>
+        String(item.id) === String(card.dataset.stockId)
+    );
     if (!button || !card || !product) return;
 
     event.preventDefault();
