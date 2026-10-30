@@ -122,7 +122,7 @@ document.addEventListener('click', event => {
         ? Number(button.dataset.price)
         : priceMatch ? Number(priceMatch[1]) : 0;
     const size = product.sizes?.find(item => Number(item.so_luong) > 0)?.size || '';
-    window.addToCart(product.ten, price, size, product.id);
+    window.addToCart(product.ten, price, size, product.id, size);
 }, true);
 
 window.addEventListener('DOMContentLoaded', refreshInventory);

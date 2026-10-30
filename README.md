@@ -10,10 +10,15 @@
 
 | STT | Họ và Tên | MSSV | Vai trò / Nhiệm vụ | GitHub Username |
 | 1 | [Đặng Duy Tùy Kê]         | [6651020030] | [Nhóm Trưởng/Thiết kế và triển khai cấu trúc,UI] | [@username](https://github.com/) |
+
 | 2 | [Trương Phạm Gia Huy]     | [6651020028] | [Thành viên/TT Quản lý danh sách sản phẩm]       | [@username](https://github.com/) |
+
 | 3 | [Võ Đình Khải]            | [6651020031] | [Thành viên/TT Quản lý kích cỡ và tồn kho]       | [@username](https://github.com/) |
+
 | 4 | [Hoàng Phi Hùng]          | [6651020024] | [Thành viên/TT Thống kê và kiểm thử]             | [@username](https://github.com/) |
+
 | 5 | [Lê Nguyễn Ngọc Bảo Châu] | [6651020005] | [Thành viên/TT Tìm kiếm và lọc sản phẩm]         | [@username](https://github.com/) |
+
 ---
 
 ## 📌 Giới thiệu Đề tài
