@@ -302,8 +302,8 @@
             drawer.classList.toggle('translate-x-full');
         }
 
-        function addToCart(name, price, variant) {
-            cart.push({ name, price, variant });
+        function addToCart(name, price, variant, inventoryId = null, size = null) {
+            cart.push({ name, price, variant, inventoryId, size });
             updateCartUI();
             toggleCart();
         }

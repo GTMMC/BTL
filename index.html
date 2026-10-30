@@ -415,14 +415,14 @@
             drawer.classList.toggle('translate-x-full');
         }
 
-        function addToCart(name, price, variant, inventoryId = null) {
+        function addToCart(name, price, variant, inventoryId = null, size = null) {
             if (!localStorage.getItem('maison-user')) {
-                pendingCartItem = { name, price, variant, inventoryId };
+                pendingCartItem = { name, price, variant, inventoryId, size };
                 toggleLogin();
                 return;
             }
 
-            cart.push({ name, price, variant, inventoryId });
+            cart.push({ name, price, variant, inventoryId, size });
             updateCartUI();
             toggleCart();
         }
@@ -521,7 +521,11 @@
         }
 
         function confirmConfigAddToCart() {
-            addToCart(currentConfigProduct.name, currentConfigProduct.price, `${selectedColor} / Size ${selectedSize}`, currentConfigProduct.inventoryId);
+            const inventoryProduct = window.inventoryCatalog?.get(String(currentConfigProduct.inventoryId));
+            const size = (inventoryProduct?.sizes || []).find(item =>
+                item.size.replace(/^Size\s*/i, '') === selectedSize
+            )?.size || `Size ${selectedSize}`;
+            addToCart(currentConfigProduct.name, currentConfigProduct.price, `${selectedColor} / Size ${selectedSize}`, currentConfigProduct.inventoryId, size);
             closeConfigurator();
         }
 
@@ -571,7 +575,7 @@
             if (pendingCartItem) {
                 const item = pendingCartItem;
                 pendingCartItem = null;
-                addToCart(item.name, item.price, item.variant);
+                addToCart(item.name, item.price, item.variant, item.inventoryId, item.size);
             }
 
             if (checkoutRequested) {
@@ -643,27 +647,50 @@
                     alert(`Sản phẩm "${item.name}" chưa được liên kết với dữ liệu kho.`);
                     return;
                 }
-                requestedStock.set(inventoryId, (requestedStock.get(inventoryId) || 0) + 1);
+                const inventoryProduct = window.inventoryCatalog?.get(String(inventoryId));
+                const variant = typeof item.variant === 'string' ? item.variant.trim() : '';
+                const legacySize = variant.match(/(?:^|\/\s*)Size\s*(.+)$/i)?.[1]?.trim() ||
+                    (inventoryProduct?.sizes || []).find(size =>
+                        size.size === variant ||
+                        size.size.replace(/^Size\s*/i, '') === variant
+                    )?.size || '';
+                const requestedSize = String(item.size || legacySize).trim();
+                const matchingSize = (inventoryProduct?.sizes || []).find(size =>
+                    size.size === requestedSize ||
+                    size.size.replace(/^Size\s*/i, '') === requestedSize
+                );
+                const size = matchingSize?.size || requestedSize;
+                if (!size) {
+                    alert(`Vui lòng chọn size cho sản phẩm "${item.name}" trước khi thanh toán.`);
+                    return;
+                }
+                const key = JSON.stringify([inventoryId, size]);
+                const line = requestedStock.get(key) || { id: inventoryId, size, quantity: 0 };
+                line.quantity += 1;
+                requestedStock.set(key, line);
             }
 
             try {
-                const response = await fetch('http://localhost:8080/api/sell', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `items=${[...requestedStock].map(([id, quantity]) => `${id}:${quantity}`).join(',')}`
-                });
-                const responseText = await response.text();
-                let result;
-                try {
-                    result = JSON.parse(responseText);
-                } catch {
-                    if (response.status === 404) {
-                        throw new Error('Máy chủ kho đang chạy phiên bản cũ. Hãy khởi động lại server.exe rồi thử lại.');
+                for (const { id, size, quantity } of requestedStock.values()) {
+                    const response = await fetch('http://localhost:8080/api/sell', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            id: String(id),
+                            size,
+                            sluong: String(quantity)
+                        })
+                    });
+                    const responseText = await response.text();
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch {
+                        throw new Error(`Máy chủ kho trả về dữ liệu không hợp lệ (HTTP ${response.status}).`);
                     }
-                    throw new Error(`Máy chủ kho trả về dữ liệu không hợp lệ (HTTP ${response.status}).`);
-                }
-                if (!response.ok || result.status !== 'success') {
-                    throw new Error(result.message || 'Không thể cập nhật số lượng tồn kho.');
+                    if (!response.ok || result.status !== 'success') {
+                        throw new Error(result.message || 'Không thể cập nhật số lượng tồn kho.');
+                    }
                 }
             } catch (error) {
                 alert(error.message || 'Không kết nối được máy chủ kho. Đơn hàng chưa được tạo.');
