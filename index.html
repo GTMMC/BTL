@@ -384,7 +384,9 @@
         function renderProducts() {
             const list = document.getElementById('product-list');
             const visibleProducts = products.filter(product => {
-                const inventoryProduct = window.inventoryCatalog?.get(String(product.inventoryId));
+                const inventoryProduct = window.inventoryCatalog?.find(item =>
+                    String(item.id) === String(product.inventoryId)
+                );
                 return !inventoryProduct || Number(inventoryProduct.hienTrangChu) !== 0;
             });
             list.innerHTML = visibleProducts.map(p => `
@@ -475,7 +477,9 @@
             document.getElementById('config-title').innerText = currentConfigProduct.name;
             document.getElementById('config-price').innerText = currentConfigProduct.price.toLocaleString('vi-VN') + '₫';
             document.getElementById('config-img').src = currentConfigProduct.img;
-            const inventoryProduct = window.inventoryCatalog?.get(String(currentConfigProduct.inventoryId));
+            const inventoryProduct = window.inventoryCatalog?.find(item =>
+                String(item.id) === String(currentConfigProduct.inventoryId)
+            );
             const availableSizes = inventoryProduct?.sizes || [];
             const sizeButtons = [...document.querySelectorAll('.size-btn')];
             const availableButtons = [];
@@ -639,7 +643,7 @@
                 note: document.getElementById('delivery-note').value.trim()
             };
 
-            const requestedStock = new Map();
+            const orderItems = [];
             for (const item of cart) {
                 const matchingProduct = products.find(product => product.name === item.name);
                 const inventoryId = Number(item.inventoryId || matchingProduct?.inventoryId);
@@ -670,6 +674,8 @@
                 requestedStock.set(key, line);
             }
 
+            const submitButton = document.querySelector('#checkout-form button[type="submit"]');
+            submitButton.disabled = true;
             try {
                 for (const { id, size, quantity } of requestedStock.values()) {
                     const response = await fetch('http://localhost:8080/api/sell', {
@@ -692,31 +698,22 @@
                         throw new Error(result.message || 'Không thể cập nhật số lượng tồn kho.');
                     }
                 }
+
+                try {
+                    localStorage.setItem('maison-delivery-profile', JSON.stringify(delivery));
+                } catch (storageError) {
+                    console.error('Đơn đã được tạo nhưng không thể lưu thông tin giao hàng trên thiết bị:', storageError);
+                }
+                cart = [];
+                updateCartUI();
+                closeCheckout();
+                document.getElementById('checkout-form').reset();
+                alert(`Đơn hàng ${result.id} đã gửi đến kho và đang chờ nhân viên duyệt. Tồn kho chỉ trừ sau khi được duyệt.`);
             } catch (error) {
                 alert(error.message || 'Không kết nối được máy chủ kho. Đơn hàng chưa được tạo.');
-                if (typeof refreshInventory === 'function') await refreshInventory();
-                return;
+            } finally {
+                submitButton.disabled = false;
             }
-
-            const order = {
-                id: Date.now(),
-                email: localStorage.getItem('maison-user'),
-                items: [...cart],
-                total: cart.reduce((sum, item) => sum + item.price, 0),
-                delivery,
-                payment: document.querySelector('input[name="payment-method"]:checked').value,
-                createdAt: new Date().toISOString()
-            };
-            const orders = readStoredJson('maison-orders', []);
-            orders.push(order);
-            localStorage.setItem('maison-orders', JSON.stringify(orders));
-            localStorage.setItem('maison-delivery-profile', JSON.stringify(delivery));
-            cart = [];
-            updateCartUI();
-            closeCheckout();
-            document.getElementById('checkout-form').reset();
-            if (typeof refreshInventory === 'function') await refreshInventory();
-            alert('Đặt hàng thành công! Thông tin đơn hàng đã được lưu trên thiết bị này.');
         }
 
         // Init App

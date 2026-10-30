@@ -1,7 +1,10 @@
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 #include <climits>
+#include <cctype>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -674,6 +677,280 @@ const GiaTriJSON* Lay(const GiaTriJSON& giaTri, const string& khoa) {
     return TimThuocTinh(giaTri.doiTuong, khoa);
 }
 
+struct DonHangItem {
+    int maSanPham;
+    string tenSanPham;
+    string kichCo;
+    int soLuong;
+    int donGia;
+    int tonCu;
+    int daBanCu;
+    DonHangItem* tiepTheo;
+
+    DonHangItem()
+        : maSanPham(0), soLuong(0), donGia(0), tonCu(0), daBanCu(0), tiepTheo(NULL) {}
+};
+
+struct DonHang {
+    string id;
+    string email;
+    string tenNguoiNhan;
+    string soDienThoai;
+    string diaChi;
+    string ghiChu;
+    string thanhToan;
+    string trangThai;
+    string taoLuc;
+    int tongTien;
+    DonHangItem* matHang;
+    DonHangItem* cuoiMatHang;
+    DonHang* tiepTheo;
+
+    DonHang()
+        : tongTien(0), matHang(NULL), cuoiMatHang(NULL), tiepTheo(NULL) {}
+    ~DonHang() {
+        while (matHang != NULL) {
+            DonHangItem* next = matHang->tiepTheo;
+            delete matHang;
+            matHang = next;
+        }
+    }
+};
+
+void ThemMatHang(DonHang& donHang, DonHangItem* item) {
+    if (donHang.matHang == NULL) donHang.matHang = donHang.cuoiMatHang = item;
+    else {
+        donHang.cuoiMatHang->tiepTheo = item;
+        donHang.cuoiMatHang = item;
+    }
+}
+
+void ThemDonHang(DonHang*& danhSach, DonHang* donHang) {
+    if (danhSach == NULL) {
+        danhSach = donHang;
+        return;
+    }
+    DonHang* cuoi = danhSach;
+    while (cuoi->tiepTheo != NULL) cuoi = cuoi->tiepTheo;
+    cuoi->tiepTheo = donHang;
+}
+
+void XoaDanhSachDonHang(DonHang*& danhSach) {
+    while (danhSach != NULL) {
+        DonHang* next = danhSach->tiepTheo;
+        delete danhSach;
+        danhSach = next;
+    }
+}
+
+void XoaDonHang(DonHang*& danhSach, DonHang* donHang) {
+    DonHang* truoc = NULL;
+    DonHang* hienTai = danhSach;
+    while (hienTai != NULL && hienTai != donHang) {
+        truoc = hienTai;
+        hienTai = hienTai->tiepTheo;
+    }
+    if (hienTai == NULL) return;
+    if (truoc == NULL) danhSach = hienTai->tiepTheo;
+    else truoc->tiepTheo = hienTai->tiepTheo;
+    hienTai->tiepTheo = NULL;
+    delete hienTai;
+}
+
+bool LayChuoiJSON(const GiaTriJSON& object, const string& key, string& value) {
+    const GiaTriJSON* item = Lay(object, key);
+    if (item == NULL || item->kieu != GiaTriJSON::CHUOI) return false;
+    value = item->chuoi;
+    return true;
+}
+
+bool LaySoJSON(const GiaTriJSON& object, const string& key, int& value) {
+    const GiaTriJSON* item = Lay(object, key);
+    if (item == NULL || item->kieu != GiaTriJSON::SO || item->so < 0) return false;
+    value = item->so;
+    return true;
+}
+
+bool GhiFileThayThe(const string& tenTep, const string& noiDung) {
+    const string tepTam = tenTep + ".tmp";
+    ofstream tep(tepTam.c_str(), ios::binary | ios::trunc);
+    if (!tep) {
+        cerr << "Khong the mo file tam de ghi: " << tepTam << endl;
+        return false;
+    }
+    tep.write(noiDung.data(), static_cast<streamsize>(noiDung.size()));
+    tep.close();
+    if (!tep) {
+        cerr << "Loi khi ghi file tam: " << tepTam << endl;
+        remove(tepTam.c_str());
+        return false;
+    }
+    if (!MoveFileExA(tepTam.c_str(), tenTep.c_str(),
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        cerr << "Khong the thay the file: " << tenTep
+             << " (Windows error " << GetLastError() << ")" << endl;
+        remove(tepTam.c_str());
+        return false;
+    }
+    return true;
+}
+
+string JSONDonHang(const DonHang& donHang) {
+    ostringstream out;
+    out << "{\"id\":\"" << MaHoaJSON(donHang.id)
+        << "\",\"email\":\"" << MaHoaJSON(donHang.email)
+        << "\",\"tenNguoiNhan\":\"" << MaHoaJSON(donHang.tenNguoiNhan)
+        << "\",\"soDienThoai\":\"" << MaHoaJSON(donHang.soDienThoai)
+        << "\",\"diaChi\":\"" << MaHoaJSON(donHang.diaChi)
+        << "\",\"ghiChu\":\"" << MaHoaJSON(donHang.ghiChu)
+        << "\",\"thanhToan\":\"" << MaHoaJSON(donHang.thanhToan)
+        << "\",\"trangThai\":\"" << MaHoaJSON(donHang.trangThai)
+        << "\",\"taoLuc\":\"" << MaHoaJSON(donHang.taoLuc)
+        << "\",\"tongTien\":" << donHang.tongTien << ",\"matHang\":[";
+    bool dauTien = true;
+    for (const DonHangItem* item = donHang.matHang; item != NULL; item = item->tiepTheo) {
+        if (!dauTien) out << ',';
+        dauTien = false;
+        out << "{\"id\":" << item->maSanPham
+            << ",\"ten\":\"" << MaHoaJSON(item->tenSanPham)
+            << "\",\"size\":\"" << MaHoaJSON(item->kichCo)
+            << "\",\"soLuong\":" << item->soLuong
+            << ",\"donGia\":" << item->donGia << '}';
+    }
+    out << "]}";
+    return out.str();
+}
+
+string JSONDanhSachDonHang(const DonHang* donHang) {
+    ostringstream out;
+    out << "{\"don_hang\":[";
+    bool dauTien = true;
+    for (const DonHang* order = donHang; order != NULL; order = order->tiepTheo) {
+        if (!dauTien) out << ',';
+        dauTien = false;
+        out << JSONDonHang(*order);
+    }
+    out << "]}";
+    return out.str();
+}
+
+bool LuuDonHang(const string& tenTep, const DonHang* donHang) {
+    return GhiFileThayThe(tenTep, JSONDanhSachDonHang(donHang));
+}
+
+bool NapDonHang(const string& tenTep, DonHang*& donHang) {
+    ifstream tep(tenTep.c_str(), ios::binary);
+    if (!tep) {
+        ifstream kiemTra(tenTep.c_str());
+        if (kiemTra.good()) return false;
+        return true;
+    }
+    string noiDung((istreambuf_iterator<char>(tep)), istreambuf_iterator<char>());
+    GiaTriJSON goc;
+    BoDocJSON boDoc(noiDung);
+    if (!boDoc.Doc(goc) || goc.kieu != GiaTriJSON::DOI_TUONG) return false;
+    const GiaTriJSON* danhSach = Lay(goc, "don_hang");
+    if (danhSach == NULL || danhSach->kieu != GiaTriJSON::MANG) return false;
+
+    DonHang* ketQua = NULL;
+    for (const NodeJSONList* it = danhSach->mang; it != NULL; it = it->next) {
+        const GiaTriJSON& value = *it->value;
+        DonHang* order = new DonHang();
+        const GiaTriJSON* items = Lay(value, "matHang");
+        if (value.kieu != GiaTriJSON::DOI_TUONG ||
+            !LayChuoiJSON(value, "id", order->id) ||
+            !LayChuoiJSON(value, "email", order->email) ||
+            !LayChuoiJSON(value, "tenNguoiNhan", order->tenNguoiNhan) ||
+            !LayChuoiJSON(value, "soDienThoai", order->soDienThoai) ||
+            !LayChuoiJSON(value, "diaChi", order->diaChi) ||
+            !LayChuoiJSON(value, "ghiChu", order->ghiChu) ||
+            !LayChuoiJSON(value, "thanhToan", order->thanhToan) ||
+            !LayChuoiJSON(value, "trangThai", order->trangThai) ||
+            !LayChuoiJSON(value, "taoLuc", order->taoLuc) ||
+            !LaySoJSON(value, "tongTien", order->tongTien) ||
+            (order->trangThai != "cho_duyet" && order->trangThai != "da_duyet") ||
+            items == NULL || items->kieu != GiaTriJSON::MANG ||
+            items->mang == NULL) {
+            delete order;
+            XoaDanhSachDonHang(ketQua);
+            return false;
+        }
+
+        long long total = 0;
+        for (const NodeJSONList* line = items->mang; line != NULL; line = line->next) {
+            DonHangItem* item = new DonHangItem();
+            const GiaTriJSON& itemValue = *line->value;
+            if (itemValue.kieu != GiaTriJSON::DOI_TUONG ||
+                !LaySoJSON(itemValue, "id", item->maSanPham) || item->maSanPham == 0 ||
+                !LayChuoiJSON(itemValue, "ten", item->tenSanPham) ||
+                !LayChuoiJSON(itemValue, "size", item->kichCo) || item->kichCo.empty() ||
+                !LaySoJSON(itemValue, "soLuong", item->soLuong) || item->soLuong == 0 ||
+                !LaySoJSON(itemValue, "donGia", item->donGia)) {
+                delete item;
+                delete order;
+                XoaDanhSachDonHang(ketQua);
+                return false;
+            }
+            total += static_cast<long long>(item->soLuong) * item->donGia;
+            if (total > INT_MAX) {
+                delete item;
+                delete order;
+                XoaDanhSachDonHang(ketQua);
+                return false;
+            }
+            ThemMatHang(*order, item);
+        }
+        if (total != order->tongTien) {
+            delete order;
+            XoaDanhSachDonHang(ketQua);
+            return false;
+        }
+        for (DonHang* existing = ketQua; existing != NULL; existing = existing->tiepTheo) {
+            if (existing->id == order->id) {
+                delete order;
+                XoaDanhSachDonHang(ketQua);
+                return false;
+            }
+        }
+        ThemDonHang(ketQua, order);
+    }
+    XoaDanhSachDonHang(donHang);
+    donHang = ketQua;
+    return true;
+}
+
+DonHang* TimDonHang(DonHang* donHang, const string& id) {
+    for (DonHang* order = donHang; order != NULL; order = order->tiepTheo) {
+        if (order->id == id) return order;
+    }
+    return NULL;
+}
+
+Nut* TimNutSanPham(KhoHang& kho, int maSanPham) {
+    for (Nut* product = kho.dau; product != NULL; product = product->sanPhamTiepTheo) {
+        if (product->data.maSanPham == maSanPham) return product;
+    }
+    return NULL;
+}
+
+Nut* TimNutSize(KhoHang& kho, int maSanPham, const string& kichCo) {
+    Nut* product = TimNutSanPham(kho, maSanPham);
+    if (product == NULL) return NULL;
+    for (Nut* size = product->dauKichCo; size != NULL; size = size->kichCoTiepTheo) {
+        if (size->data.kichCo == kichCo) return size;
+    }
+    return NULL;
+}
+
+bool IDDonHangHopLe(const string& id) {
+    if (id.empty() || id.size() > 80) return false;
+    for (size_t i = 0; i < id.size(); ++i) {
+        const unsigned char c = static_cast<unsigned char>(id[i]);
+        if (!isalnum(c) && c != '-' && c != '_') return false;
+    }
+    return true;
+}
+
 bool NapKho(const string& tenTep, KhoHang& kho) {
     ifstream tep(tenTep.c_str(), ios::binary);
     if (!tep) {
@@ -884,7 +1161,8 @@ bool Nhan(SOCKET client, string& request) {
     return false;
 }
 
-void XuLy(SOCKET client, KhoHang& kho, const string& tenTep) {
+void XuLy(SOCKET client, KhoHang& kho, const string& tenTep,
+          DonHang*& donHang, const string& tepDonHang) {
     string request;
     if (!Nhan(client, request)) {
         Gui(client, 400, "Bad Request", PhanHoi("error", "Yeu cau HTTP khong hop le."));
@@ -903,6 +1181,10 @@ void XuLy(SOCKET client, KhoHang& kho, const string& tenTep) {
     if (queryAt != string::npos) path.erase(queryAt);
     if (method == "GET" && path == "/api/products") {
         Gui(client, 200, "OK", JSONKho(kho));
+        return;
+    }
+    if (method == "GET" && path == "/api/orders") {
+        Gui(client, 200, "OK", JSONDanhSachDonHang(donHang));
         return;
     }
     FormFields fields;
@@ -929,7 +1211,193 @@ void XuLy(SOCKET client, KhoHang& kho, const string& tenTep) {
         Gui(client, 404, "Not Found", PhanHoi("error", "Khong tim thay API."));
         return;
     }
-    if (path == "/api/add-product") {
+    if (path == "/api/orders") {
+        const string* orderId = fields.Tim("id");
+        const string* email = fields.Tim("email");
+        const string* name = fields.Tim("tenNguoiNhan");
+        const string* phone = fields.Tim("soDienThoai");
+        const string* address = fields.Tim("diaChi");
+        const string* note = fields.Tim("ghiChu");
+        const string* payment = fields.Tim("thanhToan");
+        const string* createdAt = fields.Tim("taoLuc");
+        int itemCount;
+        if (orderId == NULL || !IDDonHangHopLe(*orderId) ||
+            email == NULL || email->empty() || email->size() > 254 ||
+            name == NULL || name->empty() || name->size() > 200 ||
+            phone == NULL || phone->empty() || phone->size() > 40 ||
+            address == NULL || address->empty() || address->size() > 500 ||
+            note == NULL || note->size() > 1000 ||
+            payment == NULL || (*payment != "cod" && *payment != "bank-transfer") ||
+            createdAt == NULL || createdAt->empty() || createdAt->size() > 80 ||
+            !DocSo(fields, "itemCount", itemCount) || itemCount > 100) {
+            Gui(client, 400, "Bad Request", PhanHoi("error", "Thong tin don hang khong hop le."));
+            return;
+        }
+        if (TimDonHang(donHang, *orderId) != NULL) {
+            Gui(client, 409, "Conflict", PhanHoi("error", "Ma don hang da ton tai."));
+            return;
+        }
+
+        DonHang* order = new DonHang();
+        order->id = *orderId;
+        order->email = *email;
+        order->tenNguoiNhan = *name;
+        order->soDienThoai = *phone;
+        order->diaChi = *address;
+        order->ghiChu = *note;
+        order->thanhToan = *payment;
+        order->trangThai = "cho_duyet";
+        order->taoLuc = *createdAt;
+        long long total = 0;
+        for (int i = 0; i < itemCount; ++i) {
+            ostringstream prefix;
+            prefix << "item" << i;
+            const string itemPrefix = prefix.str();
+            int id, quantity, unitPrice;
+            const string* size = fields.Tim(itemPrefix + "Size");
+            if (!DocSo(fields, itemPrefix + "Id", id) ||
+                !DocSo(fields, itemPrefix + "Quantity", quantity) ||
+                !DocSoKhongAm(fields, itemPrefix + "Price", unitPrice) ||
+                size == NULL || size->empty() || size->size() > 80) {
+                delete order;
+                Gui(client, 400, "Bad Request", PhanHoi("error", "Mat hang trong don khong hop le."));
+                return;
+            }
+            Nut* productNode = TimNutSanPham(kho, id);
+            Nut* sizeNode = TimNutSize(kho, id, *size);
+            if (productNode == NULL || sizeNode == NULL) {
+                delete order;
+                Gui(client, 404, "Not Found", PhanHoi("error", "San pham hoac size trong don khong ton tai trong kho."));
+                return;
+            }
+            DonHangItem* item = new DonHangItem();
+            item->maSanPham = id;
+            item->tenSanPham = productNode->data.tenSanPham;
+            item->kichCo = *size;
+            item->soLuong = quantity;
+            item->donGia = unitPrice;
+            total += static_cast<long long>(quantity) * unitPrice;
+            if (total > INT_MAX) {
+                delete item;
+                delete order;
+                Gui(client, 400, "Bad Request", PhanHoi("error", "Tong tien don hang vuot gioi han."));
+                return;
+            }
+            ThemMatHang(*order, item);
+        }
+        order->tongTien = static_cast<int>(total);
+        ThemDonHang(donHang, order);
+        if (!LuuDonHang(tepDonHang, donHang)) {
+            XoaDonHang(donHang, order);
+            Gui(client, 500, "Internal Server Error", PhanHoi("error", "Khong the luu don hang."));
+            return;
+        }
+        Gui(client, 201, "Created", "{\"status\":\"success\",\"id\":\"" +
+            MaHoaJSON(order->id) + "\",\"message\":\"Don hang da duoc gui den kho cho duyet.\"}");
+        return;
+    } else if (path == "/api/orders/approve") {
+        const string* orderId = fields.Tim("id");
+        if (orderId == NULL || orderId->empty()) {
+            Gui(client, 400, "Bad Request", PhanHoi("error", "Can nhap ma don hang."));
+            return;
+        }
+        DonHang* order = TimDonHang(donHang, *orderId);
+        if (order == NULL) {
+            Gui(client, 404, "Not Found", PhanHoi("error", "Khong tim thay don hang."));
+            return;
+        }
+        if (order->trangThai != "cho_duyet") {
+            Gui(client, 409, "Conflict", PhanHoi("error", "Don hang da duoc xu ly."));
+            return;
+        }
+
+        DonHang grouped;
+        for (const DonHangItem* item = order->matHang; item != NULL; item = item->tiepTheo) {
+            DonHangItem* existing = grouped.matHang;
+            while (existing != NULL &&
+                (existing->maSanPham != item->maSanPham ||
+                 existing->kichCo != item->kichCo)) existing = existing->tiepTheo;
+            if (existing == NULL) {
+                DonHangItem* groupedItem = new DonHangItem();
+                groupedItem->maSanPham = item->maSanPham;
+                groupedItem->tenSanPham = item->tenSanPham;
+                groupedItem->kichCo = item->kichCo;
+                groupedItem->soLuong = item->soLuong;
+                groupedItem->donGia = item->donGia;
+                ThemMatHang(grouped, groupedItem);
+            }
+            else {
+                if (existing->soLuong > INT_MAX - item->soLuong) {
+                    Gui(client, 400, "Bad Request", PhanHoi("error", "Tong so luong size vuot gioi han."));
+                    return;
+                }
+                existing->soLuong += item->soLuong;
+            }
+        }
+
+        bool validOrder = true;
+        for (DonHangItem* item = grouped.matHang; item != NULL; item = item->tiepTheo) {
+            Nut* sizeNode = TimNutSize(kho, item->maSanPham, item->kichCo);
+            if (sizeNode == NULL) {
+                Gui(client, 404, "Not Found", PhanHoi("error", "San pham hoac size cua don khong con trong kho."));
+                validOrder = false;
+                break;
+            }
+            if (sizeNode->data.soLuong < item->soLuong) {
+                Gui(client, 400, "Bad Request", PhanHoi("error", "Khong du ton kho de duyet don hang."));
+                validOrder = false;
+                break;
+            }
+            if (sizeNode->data.soLuongDaBan > INT_MAX - item->soLuong) {
+                Gui(client, 400, "Bad Request", PhanHoi("error", "So luong da ban vuot gioi han."));
+                validOrder = false;
+                break;
+            }
+            item->tonCu = sizeNode->data.soLuong;
+            item->daBanCu = sizeNode->data.soLuongDaBan;
+        }
+        if (!validOrder) {
+            return;
+        }
+
+        DonHangItem* current = grouped.matHang;
+        while (current != NULL) {
+            if (!kho.BanSanPham(current->maSanPham, current->kichCo, current->soLuong)) {
+                for (DonHangItem* item = grouped.matHang; item != current; item = item->tiepTheo) {
+                    Nut* sizeNode = TimNutSize(kho, item->maSanPham, item->kichCo);
+                    if (sizeNode != NULL) {
+                        sizeNode->data.soLuong = item->tonCu;
+                        sizeNode->data.soLuongDaBan = item->daBanCu;
+                    }
+                }
+                Gui(client, 400, "Bad Request", PhanHoi("error", "Khong the cap nhat ton kho cho don hang."));
+                return;
+            }
+            current = current->tiepTheo;
+        }
+        if (!kho.LuuJSON(tenTep)) {
+            NapKho(tenTep, kho);
+            Gui(client, 500, "Internal Server Error", PhanHoi("error", "Khong the luu kho sau khi duyet don."));
+            return;
+        }
+        order->trangThai = "da_duyet";
+        if (!LuuDonHang(tepDonHang, donHang)) {
+            order->trangThai = "cho_duyet";
+            for (DonHangItem* item = grouped.matHang; item != NULL; item = item->tiepTheo) {
+                Nut* sizeNode = TimNutSize(kho, item->maSanPham, item->kichCo);
+                if (sizeNode != NULL) {
+                    sizeNode->data.soLuong = item->tonCu;
+                    sizeNode->data.soLuongDaBan = item->daBanCu;
+                }
+            }
+            if (!kho.LuuJSON(tenTep))
+                cerr << "Canh bao: khong the rollback kho sau loi luu don hang." << endl;
+            Gui(client, 500, "Internal Server Error", PhanHoi("error", "Khong the luu trang thai don hang."));
+            return;
+        }
+        Gui(client, 200, "OK", PhanHoi("success", "Da duyet don; ton kho va so luong da ban da cap nhat."));
+        return;
+    } else if (path == "/api/add-product") {
         int id, gia = 0, soLuong = 0;
         const string* size = fields.Tim("size");
         const string* quantity = fields.Tim("sluong");
@@ -1062,20 +1530,28 @@ void XuLy(SOCKET client, KhoHang& kho, const string& tenTep) {
 
 int main() {
     const string tenTep = "kho.json";
+    const string tepDonHang = "don_hang.json";
     KhoHang kho;
     if (!NapKho(tenTep, kho)) {
         cerr << "File kho.json khong dung dinh dang.\n";
         return 1;
     }
+    DonHang* donHang = NULL;
+    if (!NapDonHang(tepDonHang, donHang)) {
+        cerr << "File don_hang.json khong dung dinh dang.\n";
+        return 1;
+    }
     WSADATA winsock;
     if (WSAStartup(MAKEWORD(2, 2), &winsock) != 0) {
         cerr << "Khong khoi dong duoc Winsock.\n";
+        XoaDanhSachDonHang(donHang);
         return 1;
     }
     SOCKET server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server == INVALID_SOCKET) {
         cerr << "Khong tao duoc socket.\n";
         WSACleanup();
+        XoaDanhSachDonHang(donHang);
         return 1;
     }
     sockaddr_in address;
@@ -1087,17 +1563,19 @@ int main() {
         cerr << "Khong mo duoc localhost:8080. Kiem tra cong co dang duoc su dung khong.\n";
         closesocket(server);
         WSACleanup();
+        XoaDanhSachDonHang(donHang);
         return 1;
     }
     cout << "API kho dang chay tai http://localhost:8080\n"
-         << "Dang doc va ghi file " << tenTep << ". Nhan Ctrl+C de dung.\n";
+         << "Dang doc va ghi file " << tenTep << " va " << tepDonHang
+         << ". Nhan Ctrl+C de dung.\n";
     while (true) {
         SOCKET client = accept(server, NULL, NULL);
         if (client == INVALID_SOCKET) {
             cerr << "Loi nhan ket noi HTTP.\n";
             continue;
         }
-        XuLy(client, kho, tenTep);
+        XuLy(client, kho, tenTep, donHang, tepDonHang);
         shutdown(client, SD_SEND);
         closesocket(client);
     }

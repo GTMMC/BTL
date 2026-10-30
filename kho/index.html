@@ -60,6 +60,26 @@
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; }
         input[type="checkbox"] { width: 18px; height: 18px; padding: 0; accent-color: var(--primary); cursor: pointer; }
         .product-image { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+        .orders-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+        .orders-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .orders-header h2 { font-size: 18px; }
+        .orders-list { display: grid; gap: 12px; }
+        .order-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+        .order-card-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .order-status { display: inline-block; border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; background: #fef3c7; color: #92400e; }
+        .order-status.approved { background: #d1fae5; color: #065f46; }
+        .order-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; color: var(--text-sub); font-size: 13px; overflow-wrap: anywhere; }
+        .order-items { margin: 12px 0; padding-left: 20px; font-size: 14px; }
+        .order-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .order-error { color: #b91c1c; margin-bottom: 10px; }
+        @media (max-width: 700px) {
+            body { padding: 16px; }
+            .header, .controls { align-items: flex-start; flex-direction: column; }
+            .stats-grid { grid-template-columns: 1fr; gap: 10px; }
+            .order-details { grid-template-columns: 1fr; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 900px; }
+        }
     </style>
 </head>
 <body>
@@ -89,6 +109,17 @@
             <div class="value types" id="totalTypes">0</div>
         </div>
     </div>
+
+    <section class="orders-section" aria-labelledby="orders-title">
+        <div class="orders-header">
+            <h2 id="orders-title">Đơn hàng</h2>
+            <button class="btn btn-secondary" type="button" onclick="fetchOrders()">Làm mới đơn hàng</button>
+        </div>
+        <p id="ordersError" class="order-error" role="alert"></p>
+        <div id="ordersList" class="orders-list">
+            <p>Đang tải đơn hàng...</p>
+        </div>
+    </section>
 
     <!-- Thanh Lọc Theo Danh Mục -->
     <div class="controls">
@@ -220,6 +251,7 @@
     <script>
         const API_URL = "http://localhost:8080/api";
         let inventoryData = [];
+        let ordersData = [];
 
         function escapeHTML(value) {
             return String(value).replace(/[&<>"']/g, character => ({
@@ -274,6 +306,87 @@
                 renderTable();
                 loadError.textContent = `Lỗi tải dữ liệu từ server C++: ${error.message}. Hãy chạy server.exe.`;
                 console.error("Lỗi kết nối server C++:", error);
+            }
+        }
+
+        async function fetchOrders() {
+            const list = document.getElementById("ordersList");
+            const errorElement = document.getElementById("ordersError");
+            errorElement.textContent = "";
+            try {
+                const response = await fetch(`${API_URL}/orders`, { cache: "no-store" });
+                if (!response.ok) throw new Error(`Server C++ trả về HTTP ${response.status}.`);
+                const data = await response.json();
+                if (!Array.isArray(data.don_hang)) throw new Error("Danh sách đơn hàng không đúng định dạng.");
+                ordersData = data.don_hang;
+                renderOrders();
+            } catch (error) {
+                ordersData = [];
+                list.innerHTML = "";
+                errorElement.textContent = `Không tải được đơn hàng: ${error.message}. Hãy chạy server.exe.`;
+                console.error("Lỗi tải đơn hàng:", error);
+            }
+        }
+
+        function renderOrders() {
+            const list = document.getElementById("ordersList");
+            const orders = [...ordersData].sort((a, b) => String(b.taoLuc).localeCompare(String(a.taoLuc)));
+            if (orders.length === 0) {
+                list.innerHTML = "<p>Chưa có đơn hàng nào từ website.</p>";
+                return;
+            }
+
+            list.innerHTML = orders.map(order => {
+                const approved = order.trangThai === "da_duyet";
+                const createdAt = new Date(order.taoLuc);
+                const formattedDate = Number.isNaN(createdAt.getTime())
+                    ? escapeHTML(order.taoLuc)
+                    : escapeHTML(createdAt.toLocaleString("vi-VN"));
+                const items = (order.matHang || []).map(item =>
+                    `<li>${escapeHTML(item.ten)} — ${escapeHTML(item.size)} × ${Number(item.soLuong)} · ${Number(item.donGia).toLocaleString("vi-VN")}₫/sp</li>`
+                ).join("");
+                return `
+                    <article class="order-card">
+                        <div class="order-card-header">
+                            <strong>Đơn #${escapeHTML(order.id)}</strong>
+                            <span class="order-status ${approved ? "approved" : ""}">${approved ? "Đã duyệt · đã ghi nhận bán" : "Chờ duyệt"}</span>
+                        </div>
+                        <div class="order-details">
+                            <span>Người đặt: ${escapeHTML(order.email)}</span>
+                            <span>Người nhận: ${escapeHTML(order.tenNguoiNhan)}</span>
+                            <span>Điện thoại: ${escapeHTML(order.soDienThoai)}</span>
+                            <span>Thanh toán: ${order.thanhToan === "cod" ? "Khi nhận hàng" : "Chuyển khoản khi xác nhận"}</span>
+                            <span>Địa chỉ: ${escapeHTML(order.diaChi)}</span>
+                            <span>Thời gian: ${formattedDate}</span>
+                            ${order.ghiChu ? `<span>Ghi chú: ${escapeHTML(order.ghiChu)}</span>` : ""}
+                        </div>
+                        <ul class="order-items">${items}</ul>
+                        <div class="order-actions">
+                            <strong>Tổng: ${Number(order.tongTien).toLocaleString("vi-VN")}₫</strong>
+                            ${approved ? "" : `<button class="btn btn-primary" type="button" data-approve-order="${escapeHTML(order.id)}">Duyệt và ghi nhận bán</button>`}
+                        </div>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        async function approveOrder(id, button) {
+            if (!confirm(`Duyệt đơn ${id}? Hệ thống sẽ trừ tồn kho và cộng số lượng đã bán.`)) return;
+            button.disabled = true;
+            try {
+                const response = await fetch(`${API_URL}/orders/approve`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ id })
+                });
+                const result = await response.json();
+                if (!response.ok || result.status !== "success") {
+                    throw new Error(result.message || `Server C++ trả về HTTP ${response.status}.`);
+                }
+                await Promise.all([fetchOrders(), fetchProducts()]);
+            } catch (error) {
+                alert(`Không duyệt được đơn hàng: ${error.message}`);
+                button.disabled = false;
             }
         }
 
@@ -623,6 +736,13 @@
         function closeModal(id) { document.getElementById(id).classList.remove("active"); }
 
         fetchProducts();
+        fetchOrders();
+        document.getElementById("ordersList").addEventListener("click", event => {
+            const button = event.target.closest("[data-approve-order]");
+            if (button) approveOrder(button.dataset.approveOrder, button);
+        });
+        window.addEventListener("focus", fetchOrders);
+        window.setInterval(fetchOrders, 15000);
     </script>
 </body>
 </html>
