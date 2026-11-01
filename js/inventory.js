@@ -105,6 +105,36 @@ async function refreshInventory() {
     }
 }
 
+window.getCartItemAvailableStock = (item, cartItems = []) => {
+    if (!item?.inventoryId) return null;
+
+    const product = window.inventoryCatalog?.find(candidate =>
+        String(candidate.id) === String(item.inventoryId)
+    );
+    if (!product) return null;
+
+    const requestedSize = String(item.size || '').trim();
+    const normalizeSize = size => String(size || '').replace(/^Size\s*/i, '').toLowerCase();
+    const matchingSize = (product.sizes || []).find(size =>
+        size.size === requestedSize ||
+        normalizeSize(size.size) === normalizeSize(requestedSize)
+    );
+    if (!matchingSize) return 0;
+
+    const usedByOtherItems = cartItems.reduce((total, candidate) => {
+        const sameProduct = String(candidate.inventoryId) === String(item.inventoryId);
+        const sameSize = normalizeSize(candidate.size) === normalizeSize(requestedSize);
+        return sameProduct && sameSize && candidate !== item
+            ? total + (Number(candidate.quantity) || 1)
+            : total;
+    }, 0);
+    return Math.max(0, (Number(matchingSize.so_luong) || 0) - usedByOtherItems);
+};
+
+document.addEventListener('inventory:loaded', () => {
+    if (typeof updateCartUI === 'function') updateCartUI();
+});
+
 document.addEventListener('click', event => {
     const button = event.target instanceof Element
         ? event.target.closest('button[onclick*="addToCart"], button[data-inventory-add]')
