@@ -30,18 +30,7 @@
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .backdrop-blur-apple {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .bento-card {
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .bento-card:hover {
-            transform: scale(1.015);
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-inventory-section="home" class="bg-white dark:bg-apple-bg text-gray-900 dark:text-apple-text font-sans antialiased selection:bg-apple-blue selection:text-white transition-colors duration-300">
 
@@ -311,7 +300,7 @@
                     </label>
                     <label class="block text-sm font-medium">
                         Số điện thoại
-                        <input id="delivery-phone" type="tel" autocomplete="tel" pattern="[0-9+() .-]{9,15}" required class="mt-1 w-full bg-gray-100 dark:bg-apple-gray px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-apple-blue">
+                        <input id="delivery-phone" type="tel" autocomplete="tel" pattern="[0-9+\(\) .\-]{9,15}" required class="mt-1 w-full bg-gray-100 dark:bg-apple-gray px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-apple-blue">
                     </label>
                 </div>
                 <label class="block text-sm font-medium">
@@ -424,7 +413,14 @@
                 return;
             }
 
-            cart.push({ name, price, variant, inventoryId, size });
+            const sizeMatch = String(variant || '').match(/(?:^|\/)\s*Size\s+(.+)$/i);
+            cart.push({
+                name,
+                price,
+                variant,
+                inventoryId,
+                size: size || (sizeMatch ? `Size ${sizeMatch[1].trim()}` : '')
+            });
             updateCartUI();
             toggleCart();
         }
@@ -668,35 +664,55 @@
                     alert(`Vui lòng chọn size cho sản phẩm "${item.name}" trước khi thanh toán.`);
                     return;
                 }
-                const key = JSON.stringify([inventoryId, size]);
-                const line = requestedStock.get(key) || { id: inventoryId, size, quantity: 0 };
-                line.quantity += 1;
-                requestedStock.set(key, line);
+                const existing = orderItems.find(orderItem =>
+                    orderItem.inventoryId === inventoryId && orderItem.size === size
+                );
+                if (existing) existing.quantity += 1;
+                else orderItems.push({
+                    inventoryId,
+                    size,
+                    quantity: 1,
+                    price: Number(item.price)
+                });
             }
 
             const submitButton = document.querySelector('#checkout-form button[type="submit"]');
             submitButton.disabled = true;
             try {
-                for (const { id, size, quantity } of requestedStock.values()) {
-                    const response = await fetch('http://localhost:8080/api/sell', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: new URLSearchParams({
-                            id: String(id),
-                            size,
-                            sluong: String(quantity)
-                        })
-                    });
-                    const responseText = await response.text();
-                    let result;
-                    try {
-                        result = JSON.parse(responseText);
-                    } catch {
-                        throw new Error(`Máy chủ kho trả về dữ liệu không hợp lệ (HTTP ${response.status}).`);
-                    }
-                    if (!response.ok || result.status !== 'success') {
-                        throw new Error(result.message || 'Không thể cập nhật số lượng tồn kho.');
-                    }
+                const orderId = globalThis.crypto?.randomUUID
+                    ? crypto.randomUUID()
+                    : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+                const formData = new URLSearchParams({
+                    id: orderId,
+                    email: localStorage.getItem('maison-user'),
+                    tenNguoiNhan: delivery.name,
+                    soDienThoai: delivery.phone,
+                    diaChi: delivery.address,
+                    ghiChu: delivery.note,
+                    thanhToan: document.querySelector('input[name="payment-method"]:checked').value,
+                    taoLuc: new Date().toISOString(),
+                    itemCount: String(orderItems.length)
+                });
+                orderItems.forEach((item, index) => {
+                    formData.set(`item${index}Id`, String(item.inventoryId));
+                    formData.set(`item${index}Size`, item.size);
+                    formData.set(`item${index}Quantity`, String(item.quantity));
+                    formData.set(`item${index}Price`, String(item.price));
+                });
+                const response = await fetch('http://localhost:8080/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+                const responseText = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch {
+                    throw new Error(`Máy chủ kho trả về dữ liệu không hợp lệ (HTTP ${response.status}).`);
+                }
+                if (!response.ok || result.status !== 'success') {
+                    throw new Error(result.message || 'Không thể gửi đơn hàng đến kho.');
                 }
 
                 try {
@@ -722,6 +738,9 @@
             updateAccountButton();
             updateCartUI();
             lucide.createIcons();
+            if (new URLSearchParams(window.location.search).get('checkout') === '1') {
+                startCheckout();
+            }
         });
     </script>
     <script src="js/inventory.js"></script>
