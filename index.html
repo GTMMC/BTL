@@ -521,7 +521,9 @@
         }
 
         function confirmConfigAddToCart() {
-            const inventoryProduct = window.inventoryCatalog?.get(String(currentConfigProduct.inventoryId));
+            const inventoryProduct = window.inventoryCatalog?.find(item =>
+                String(item.id) === String(currentConfigProduct.inventoryId)
+            );
             const size = (inventoryProduct?.sizes || []).find(item =>
                 item.size.replace(/^Size\s*/i, '') === selectedSize
             )?.size || `Size ${selectedSize}`;
@@ -647,7 +649,9 @@
                     alert(`Sản phẩm "${item.name}" chưa được liên kết với dữ liệu kho.`);
                     return;
                 }
-                const inventoryProduct = window.inventoryCatalog?.get(String(inventoryId));
+                const inventoryProduct = window.inventoryCatalog?.find(product =>
+                    String(product.id) === String(inventoryId)
+                );
                 const variant = typeof item.variant === 'string' ? item.variant.trim() : '';
                 const legacySize = variant.match(/(?:^|\/\s*)Size\s*(.+)$/i)?.[1]?.trim() ||
                     (inventoryProduct?.sizes || []).find(size =>
