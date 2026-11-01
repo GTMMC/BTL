@@ -30,25 +30,7 @@
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .backdrop-blur-apple {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .bento-card {
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .bento-card:hover {
-            transform: scale(1.015);
-        }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-inventory-section="jacket" class="bg-[#f5f5f7] dark:bg-apple-bg text-gray-900 dark:text-apple-text font-sans antialiased selection:bg-apple-blue selection:text-white transition-colors duration-300">
 
@@ -115,7 +97,7 @@
                     <p class="text-lg font-bold mt-4">3.490.000₫</p>
                 </div>
                 <div class="mt-6 z-10">
-                    <button onclick="addToCart('UltraLight Jacket Pro', 3490000, 'Đen Space')" class="bg-apple-blue text-white px-6 py-3 rounded-full text-xs font-semibold hover:bg-blue-600 transition">SỞ HỮU NGAY</button>
+                    <button type="button" data-inventory-add data-price="3490000" disabled class="bg-apple-blue text-white px-6 py-3 rounded-full text-xs font-semibold hover:bg-blue-600 transition">SỞ HỮU NGAY</button>
                 </div>
                 <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=1000&q=80" class="absolute right-0 bottom-0 w-3/5 h-full object-cover rounded-r-3xl" alt="Jacket Pro">
             </div>
@@ -129,7 +111,7 @@
                     <p class="text-base font-bold mt-3">4.990.000₫</p>
                 </div>
                 <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80" class="w-full h-48 object-cover rounded-2xl my-4" alt="Leather Jacket">
-                <button onclick="addToCart('Leather Biker Jacket', 4990000, 'Đen Nappa')" class="w-full bg-gray-100 dark:bg-apple-gray text-black dark:text-white py-3 rounded-xl text-xs font-bold hover:bg-apple-blue hover:text-white transition">Thêm Vào Giỏ</button>
+                <button type="button" data-inventory-add data-price="4990000" disabled class="w-full bg-gray-100 dark:bg-apple-gray text-black dark:text-white py-3 rounded-xl text-xs font-bold hover:bg-apple-blue hover:text-white transition">Thêm Vào Giỏ</button>
             </div>
         </div>
 
@@ -150,7 +132,7 @@
                     </div>
                     <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
                         <span class="font-bold text-base">2.290.000₫</span>
-                        <button onclick="addToCart('Denim Heritage Jacket', 2290000, 'Xanh Denim')" class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
+                        <button type="button" data-inventory-add data-price="2290000" disabled class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
                     </div>
                 </div>
 
@@ -164,7 +146,7 @@
                     </div>
                     <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
                         <span class="font-bold text-base">1.890.000₫</span>
-                        <button onclick="addToCart('Organic Zip Hoodie', 1890000, 'Xám Melange')" class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
+                        <button type="button" data-inventory-add data-price="1890000" disabled class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
                     </div>
                 </div>
 
@@ -178,7 +160,7 @@
                     </div>
                     <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
                         <span class="font-bold text-base">1.450.000₫</span>
-                        <button onclick="addToCart('Minimalist Windbreaker', 1450000, 'Xanh Navy')" class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
+                        <button type="button" data-inventory-add data-price="1450000" disabled class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
                     </div>
                 </div>
 
@@ -192,7 +174,7 @@
                     </div>
                     <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
                         <span class="font-bold text-base">3.890.000₫</span>
-                        <button onclick="addToCart('Classic Trench Coat', 3890000, 'Khaki')" class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
+                        <button type="button" data-inventory-add data-price="3890000" disabled class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
                     </div>
                 </div>
 
@@ -206,7 +188,7 @@
                     </div>
                     <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
                         <span class="font-bold text-base">2.990.000₫</span>
-                        <button onclick="addToCart('Puffer Winter Jacket', 2990000, 'Đen Bóng')" class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
+                        <button type="button" data-inventory-add data-price="2990000" disabled class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
                     </div>
                 </div>
 
@@ -220,7 +202,7 @@
                     </div>
                     <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
                         <span class="font-bold text-base">3.190.000₫</span>
-                        <button onclick="addToCart('Suede Bomber Jacket', 3190000, 'Nâu Rêu')" class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
+                        <button type="button" data-inventory-add data-price="3190000" disabled class="bg-apple-blue text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-600 transition">Mua Ngay</button>
                     </div>
                 </div>
 
@@ -255,8 +237,8 @@
                 <span>Tổng cộng:</span>
                 <span id="cart-total" class="text-apple-blue">0₫</span>
             </div>
-            <button onclick="alert('Chức năng Thanh Toán đang kết nối cổng thanh toán!')" class="w-full bg-apple-blue text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition flex items-center justify-center">
-                Thanh Toán Ngay
+            <button onclick="continueCheckout()" class="w-full bg-apple-blue text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition flex items-center justify-center">
+                Tiếp Tục Thanh Toán
             </button>
         </div>
     </div>
@@ -264,7 +246,73 @@
     <!-- Script Logic -->
     <script>
         let cart = [];
+        try {
+            const storedCart = JSON.parse(localStorage.getItem('maison-cart') || '[]');
+            if (Array.isArray(storedCart)) cart = storedCart;
+        } catch (error) {
+            console.error('Không đọc được giỏ hàng đã lưu:', error);
+        }
         let activeJacketCategory = '';
+
+        function renderJacketSizeSelectors(inventory) {
+            document.querySelectorAll('[data-stock-id]').forEach(card => {
+                const product = inventory.find(item => String(item.id) === String(card.dataset.stockId));
+                const buyButton = card.querySelector('button[data-inventory-add]');
+                if (!product || !buyButton) return;
+
+                let selector = card.querySelector('select[data-inventory-size]');
+                if (!selector) {
+                    const wrapper = document.createElement('label');
+                    wrapper.className = 'block text-xs text-apple-subtext mb-3';
+                    wrapper.textContent = 'Chọn size';
+                    selector = document.createElement('select');
+                    selector.dataset.inventorySize = '';
+                    selector.setAttribute('aria-label', `Chọn size cho ${product.ten}`);
+                    selector.className = 'mt-1 w-full bg-gray-100 dark:bg-apple-gray text-gray-900 dark:text-white px-3 py-2 rounded-lg';
+                    wrapper.appendChild(selector);
+
+                    const actions = buyButton.parentElement;
+                    if (actions && actions !== card && actions.classList.contains('flex')) {
+                        card.insertBefore(wrapper, actions);
+                    } else if (actions) {
+                        actions.insertBefore(wrapper, buyButton);
+                    }
+                }
+
+                const previousSize = selector.value;
+                const availableSizes = (product.sizes || []).filter(size => Number(size.so_luong) > 0);
+                selector.replaceChildren();
+                if (availableSizes.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = 'Hết hàng';
+                    option.value = '';
+                    selector.appendChild(option);
+                    selector.disabled = true;
+                    buyButton.disabled = true;
+                    return;
+                }
+
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = 'Chọn size';
+                placeholder.disabled = true;
+                selector.appendChild(placeholder);
+                availableSizes.forEach(size => {
+                    const option = document.createElement('option');
+                    option.value = size.size;
+                    option.textContent = `${size.size} (còn ${size.so_luong})`;
+                    selector.appendChild(option);
+                });
+                selector.disabled = false;
+                selector.value = availableSizes.some(size => size.size === previousSize)
+                    ? previousSize
+                    : '';
+                selector.onchange = () => {
+                    buyButton.disabled = !availableSizes.some(size => size.size === selector.value);
+                };
+                buyButton.disabled = !selector.value;
+            });
+        }
 
         function renderAddedJackets(inventory) {
             const list = document.getElementById('jacket-product-list');
@@ -345,7 +393,6 @@
                 buyButton.classList.toggle('opacity-50', stock <= 0);
                 buyButton.classList.toggle('cursor-not-allowed', stock <= 0);
                 buyButton.title = stock <= 0 ? 'Sản phẩm hiện đã hết hàng' : '';
-                buyButton.addEventListener('click', () => addToCart(product.ten, Number(product.gia || 0), product.sizes?.[0]?.size || '', product.id));
                 footer.appendChild(buyButton);
 
                 card.append(content, footer);
@@ -381,6 +428,7 @@
 
         document.addEventListener('inventory:loaded', event => {
             renderAddedJackets(event.detail);
+            renderJacketSizeSelectors(event.detail);
             applyJacketCategoryFilter();
         });
 
@@ -396,12 +444,17 @@
         }
 
         function addToCart(name, price, variant, inventoryId = null, size = null) {
+            if (!inventoryId || !size) {
+                alert('Vui lòng chọn sản phẩm và size còn hàng.');
+                return;
+            }
             cart.push({ name, price, variant, inventoryId, size });
             updateCartUI();
             toggleCart();
         }
 
         function updateCartUI() {
+            localStorage.setItem('maison-cart', JSON.stringify(cart));
             const count = document.getElementById('cart-count');
             const container = document.getElementById('cart-items');
             const totalEl = document.getElementById('cart-total');
@@ -424,7 +477,7 @@
                     <div class="flex justify-between items-center bg-gray-100 dark:bg-apple-gray p-3 rounded-xl">
                         <div>
                             <h5 class="text-sm font-semibold">${item.name}</h5>
-                            <p class="text-xs text-apple-subtext">${item.variant}</p>
+                            <p class="text-xs text-apple-subtext">Size: ${item.size || item.variant}</p>
                             <span class="text-xs font-bold text-apple-blue">${item.price.toLocaleString('vi-VN')}₫</span>
                         </div>
                         <button onclick="removeFromCart(${index})" class="text-apple-subtext hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -442,7 +495,27 @@
             updateCartUI();
         }
 
+        function continueCheckout() {
+            if (cart.length === 0) {
+                alert('Giỏ hàng đang trống.');
+                return;
+            }
+            cart = cart.map(item => {
+                const match = String(item.variant || '').match(/(?:^|\/)\s*Size\s+(.+)$/i);
+                const size = item.size || (match ? `Size ${match[1].trim()}` : '');
+                return { ...item, size };
+            });
+            const invalidItem = cart.find(item => !item.inventoryId || !item.size);
+            if (invalidItem) {
+                alert(`Sản phẩm "${invalidItem.name}" thiếu mã kho hoặc size. Vui lòng thêm lại sản phẩm.`);
+                return;
+            }
+            localStorage.setItem('maison-cart', JSON.stringify(cart));
+            window.location.href = 'index.html?checkout=1';
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            updateCartUI();
             lucide.createIcons();
         });
     </script>

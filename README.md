@@ -77,6 +77,8 @@ Mở thư mục dự án bằng VS Code, dùng **Live Server** để mở `index
 - `aokhoac.html`: Trang sản phẩm áo khoác.
 - `kho/index.html`: Giao diện quản lý kho.
 
+Các trang trên là những điểm vào HTML độc lập và điều hướng bằng liên kết thông thường; không dùng router phía client. CSS tùy chỉnh dùng chung được lưu trong `css/style.css`; Tailwind CSS vẫn được tải qua CDN. `js/inventory.js` là script dùng chung để đồng bộ dữ liệu kho với website.
+
 Backend cần hoạt động để website tải số lượng tồn, gửi đơn hàng và để các chức năng cập nhật kho được lưu vào file JSON. Đơn hàng được lưu trong `kho\don_hang.json` (tạo tự động khi có đơn đầu tiên), độc lập với `kho\kho.json`.
 
 ### 4. Nhận và duyệt đơn hàng

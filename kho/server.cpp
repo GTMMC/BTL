@@ -1575,6 +1575,13 @@ int main() {
             cerr << "Loi nhan ket noi HTTP.\n";
             continue;
         }
+        DWORD receiveTimeoutMs = 2000;
+        if (setsockopt(client, SOL_SOCKET, SO_RCVTIMEO,
+                reinterpret_cast<const char*>(&receiveTimeoutMs), sizeof(receiveTimeoutMs)) == SOCKET_ERROR) {
+            cerr << "Khong dat duoc timeout cho ket noi HTTP.\n";
+            closesocket(client);
+            continue;
+        }
         XuLy(client, kho, tenTep, donHang, tepDonHang);
         shutdown(client, SD_SEND);
         closesocket(client);

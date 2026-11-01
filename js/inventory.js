@@ -121,7 +121,14 @@ document.addEventListener('click', event => {
     const price = button.dataset.price !== undefined
         ? Number(button.dataset.price)
         : priceMatch ? Number(priceMatch[1]) : 0;
-    const size = product.sizes?.find(item => Number(item.so_luong) > 0)?.size || '';
+    const sizeSelect = card.querySelector('select[data-inventory-size]');
+    const size = sizeSelect
+        ? sizeSelect.value
+        : product.sizes?.find(item => Number(item.so_luong) > 0)?.size || '';
+    if (!size) {
+        window.alert('Vui lòng chọn size còn hàng trước khi thêm vào giỏ.');
+        return;
+    }
     window.addToCart(product.ten, price, size, product.id, size);
 }, true);
 
